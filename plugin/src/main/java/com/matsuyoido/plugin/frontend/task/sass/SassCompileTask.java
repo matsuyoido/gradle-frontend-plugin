@@ -1,0 +1,31 @@
+package com.matsuyoido.plugin.frontend.task.sass;
+
+import java.io.File;
+
+import org.gradle.api.DefaultTask;
+import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
+
+public class SassCompileTask extends DefaultTask {
+    private File sassFileDirectory;
+    private File cssOutputDirectory;
+
+    @TaskAction
+    public void compileSass(IncrementalTaskInputs inputs) {
+        compiler().execute(sassFileDirectory, cssOutputDirectory);
+    }
+
+    public SassCompileTask setSassFileDirectory(File directory) {
+        this.sassFileDirectory = directory;
+        return this;
+    }
+    public SassCompileTask setOutputFileDirectory(File directory) {
+        this.cssOutputDirectory = directory;
+        return this;
+    }
+
+    public SassCompiler compiler() {
+        return new SassCompiler();
+    }
+
+}

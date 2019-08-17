@@ -1,0 +1,93 @@
+buildscript {
+    ext {
+        gradleVersion = '5.5.1'
+        jdkVersion = JavaVersion.VERSION_11
+        assertJVersion = '3.11.1'
+        defaultEncoding = 'UTF-8'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.10.1"
+    }
+}
+
+wrapper {
+    gradleVersion = "${gradleVersion}"
+}
+
+
+subprojects {
+    apply {
+        plugin 'java'
+        plugin 'java-library'
+        plugin 'eclipse'
+    }
+
+    [compileJava, compileTestJava]*.options*.encoding = "${defaultEncoding}"
+    sourceCompatibility = "${jdkVersion}"
+    targetCompatibility = "${jdkVersion}"
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+            }
+            resources {
+                srcDirs = ['src/main/resources']
+            }
+        }
+        test.compileClasspath += configurations.compileOnly
+        test.runtimeClasspath += configurations.compileOnly
+    }
+
+    task initSrcDirs {
+        doLast {
+            sourceSets.all {
+                java.srcDirs*.mkdirs()
+            }
+        }
+    }
+    tasks.eclipse.dependsOn(initSrcDirs)
+}
+
+project(':plugin') {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        implementation gradleApi()
+        testImplementation  'junit:junit:4.+'
+        testImplementation "org.assertj:assertj-core:${assertJVersion}"
+
+        implementation 'io.bit3:jsass:5.9.2'
+        implementation 'com.yahoo.platform.yui:yuicompressor:2.4.8'
+        implementation 'com.google.javascript:closure-compiler:v20190709'
+    }
+
+    version = '0.0.1'
+    group = 'com.matsuyoido'
+    jar.baseName = 'matsuyoido-frontend-gradle-plugin'
+
+    apply plugin: 'java-gradle-plugin'
+    gradlePlugin {
+        plugins {
+            frontEndPlugin {
+                id = 'com.matsuyoido.frontend'
+                implementationClass = 'com.matsuyoido.plugin.frontend.MainPlugin'
+                displayName = 'This plugin support preparation of deliverables.'
+                description = 'scss -> css | css -> min.css | js -> min.js'
+            }
+        }
+    }
+
+    apply plugin: 'com.gradle.plugin-publish'
+    pluginBundle {
+        vcsUrl = 'https://github.com/matsuyoido/gradle-frontend-plugin'
+        tags = ['preprocessor', 'scss', 'minify']
+    }
+}

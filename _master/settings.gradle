@@ -1,0 +1,3 @@
+rootProject.name = '_master'
+
+includeFlat 'plugin', 'example'
