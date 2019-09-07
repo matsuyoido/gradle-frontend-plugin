@@ -1,12 +1,22 @@
 package com.matsuyoido.plugin.frontend;
 
 import com.matsuyoido.plugin.frontend.extension.JavaScriptExtension;
+import com.matsuyoido.plugin.frontend.extension.PrefixerExtension;
 import com.matsuyoido.plugin.frontend.extension.RootExtension;
+
+import java.io.IOException;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import com.matsuyoido.caniuse.CanIUse;
+import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.extension.CssExtension;
 import com.matsuyoido.plugin.frontend.task.css.CssMinifyTask;
 import com.matsuyoido.plugin.frontend.task.js.JsMinifyTask;
 import com.matsuyoido.plugin.frontend.task.sass.SassCompileTask;
 
+import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskContainer;
@@ -18,7 +28,8 @@ public class MainPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        this.extension = project.getExtensions().create("frontend", RootExtension.class);
+        this.extension = project.getExtensions().create("frontend", RootExtension.class, project);
+// https://github.com/andriipanasiuk/family-gradle-plugin/blob/master/plugin/src/main/groovy/com/andriipanasiuk/family/plugin/FamilyExtension.groovy
 
         project.afterEvaluate(this::setupTasks);
     }
@@ -79,6 +90,15 @@ public class MainPlugin implements Plugin<Project> {
     private CssMinifyTask setupCssMinifyTask(TaskContainer taskFactory) {
         CssExtension extension = getExtension().cssConfigure();
         CssMinifyTask task = taskFactory.create("cssMinify", CssMinifyTask.class);
+        if (extension.isPrefixerEnable()) {
+            PrefixerExtension prefixerExtension = extension.prefixerConfig();
+            try {
+                CanIUse caniuse = new CanIUse(prefixerExtension.getCaniuseData());
+                task.setPrefixer(caniuse.getCssSupports(), prefixerExtension.getSupportFilter());
+            } catch (IOException e) {
+                throw new GradleException(e.getMessage(), e);
+            }
+        }
 
         task.setCssFileDirectory(extension.getCssDir())
             .setOutputFileDirectory(extension.getOutDir())

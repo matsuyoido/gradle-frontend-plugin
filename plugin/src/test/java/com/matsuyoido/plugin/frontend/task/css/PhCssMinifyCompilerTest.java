@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.plugin.PathUtil;
 
 import org.junit.Rule;
@@ -13,9 +14,9 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 /**
- * YuiCssMinifyCompilerTest
+ * PhCssMinifyCompilerTest
  */
-public class YuiCssMinifyCompilerTest {
+public class PhCssMinifyCompilerTest {
 
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -23,7 +24,7 @@ public class YuiCssMinifyCompilerTest {
     private static final String CSS_FILE_DIR = PathUtil.classpathResourcePath("minCompile");
     private static final int CSS_FILE_COUNT = 2;
 
-    private YuiCssMinifyCompiler compiler = new YuiCssMinifyCompiler(false);
+    private PhCssMinifyCompiler compiler = new PhCssMinifyCompiler(false);
     
     @Test
     public void compile() {
@@ -31,7 +32,17 @@ public class YuiCssMinifyCompilerTest {
         
         String result = compiler.compile(cssFilePath);
 
-        assertThat(result).isEqualTo("p{font-size:1px}a{display:flex}");
+        assertThat(result).isEqualTo("@charset \"UTF-8\";p{font-size:1px}a{display:flex}");
+    }
+
+    @Test
+    public void compile_withPrefixer() throws IOException {
+        Path cssFilePath = Path.of(CSS_FILE_DIR, "test.css");
+        CanIUse canIUse = new CanIUse(new File(PathUtil.classpathResourcePath("caniuse/data.json")));
+        compiler.setPrefixer(canIUse.getCssSupports(), x -> true);
+
+        String result = compiler.compile(cssFilePath);
+        assertThat(result).isEqualTo("@charset \"UTF-8\";p{font-size:1px}a{display:flex;display:-ms-flex;display:-moz-flex;display:-webkit-flex}");
     }
 
     @Test
@@ -51,7 +62,7 @@ public class YuiCssMinifyCompilerTest {
             } else {
                 assertThat(file).isFile()
                                 .satisfies(f -> assertThat(f.getName()).endsWith(".min.css"))
-                                .hasContent("p{font-size:1px}a{display:flex}");
+                                .hasContent("p{font-size:1px}a{color:red}");
             }
         }).hasSize(CSS_FILE_COUNT);
     }

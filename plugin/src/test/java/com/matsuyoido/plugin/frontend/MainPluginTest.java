@@ -4,9 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import com.matsuyoido.plugin.PathUtil;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
@@ -60,7 +65,10 @@ public class MainPluginTest {
             "import com.matsuyoido.plugin.frontend.MainPlugin",
             "apply plugin: MainPlugin")).append(System.lineSeparator());
         buildScript.append(Arrays.stream(extension).collect(Collectors.joining(System.lineSeparator())));
-        Files.writeString(buildGradle.toPath(), buildScript);
+        String text = buildScript.toString();
+
+        System.out.println(text);
+        Files.writeString(buildGradle.toPath(), text);
     }
 
     @Test
@@ -230,7 +238,7 @@ public class MainPluginTest {
     }
 
     @Test
-    public void cssMinify() throws IOException {
+    public void cssMinify_onlyMinify() throws IOException {
         File cssInDir = new File(getProjectDir(), "src/main/resources/static/css");
         File cssOutDir = new File(getProjectDir(), "build/resources/static/css");
 
@@ -252,6 +260,53 @@ public class MainPluginTest {
 
         BuildResult result = run("cssMinify");
         assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(cssOutDir.list()).hasSize(1)
+                                    .containsOnly("child.min.css");
+    }
+
+    @Test
+    public void cssMinify_andPrefixer() throws IOException {
+        File cssInDir = new File(getProjectDir(), "src/main/resources/static/css");
+        File cssOutDir = new File(getProjectDir(), "build/resources/static/css");
+        Path dataJsonPath = getProjectDir().toPath().resolve("data.json");
+
+        Files.copy(Path.of(PathUtil.classpathResourcePath("caniuse/data.json")), dataJsonPath);
+        
+        cssInDir.mkdirs();
+        cssOutDir.mkdirs();
+        File notCompileFile = new File(cssInDir, "notCompile.min.css");
+        notCompileFile.createNewFile();
+
+        @SuppressWarnings("unused")
+        Path cssFile = Files.writeString(cssInDir.toPath().resolve("child.css"), 
+            "a { display: flex; }",
+            StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+
+        setup(
+            "frontend {",
+            "  css {",
+            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "    outDir = file(\"$projectDir/build/resources/static/css\")",
+            "    prefixerEnable = true",
+            "    prefixer {",
+            "      caniuseData = file(\"$projectDir/data.json\")",
+            "      ie = ''",
+            "      edge = ''",
+            "      chrome = 'all'",
+            "      firefox = ''",
+            "      safari = ''",
+            "      ios = ''",
+            "      android = ''",
+            "    }",
+            "  }",
+           "}"
+        );
+
+        BuildResult result = run("cssMinify");
+        assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        String cssValue = Files.readString(cssOutDir.listFiles()[0].toPath());
+        assertThat(cssValue).isEqualTo("@charset \"UTF-8\";a{display:flex;display:-webkit-flex}");
+
         assertThat(cssOutDir.list()).hasSize(1)
                                     .containsOnly("child.min.css");
     }

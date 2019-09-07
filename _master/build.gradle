@@ -67,6 +67,10 @@ project(':plugin') {
         implementation 'io.bit3:jsass:5.9.2'
         implementation 'com.yahoo.platform.yui:yuicompressor:2.4.8'
         implementation 'com.google.javascript:closure-compiler:v20190709'
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9.3'
+
+        implementation 'com.helger:ph-css:6.2.0'
+        implementation 'org.webjars.npm:caniuse-db:1.0.30000748'
     }
 
     version = '0.0.1'

@@ -1,7 +1,11 @@
 package com.matsuyoido.plugin.frontend.task.css;
 
 import java.io.File;
+import java.util.List;
+import java.util.function.Predicate;
 
+import com.matsuyoido.caniuse.SupportData;
+import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.task.Minifier;
 
 import org.gradle.api.DefaultTask;
@@ -13,9 +17,11 @@ public class CssMinifyTask extends DefaultTask {
     private File cssFileDirectory;
     private File cssOutputDirectory;
     private boolean isDeleteBeforeCompileFile;
+    private List<SupportData> supportData;
+    private Predicate<SupportStatus> supportFilter;
 
     @TaskAction
-    public void compileSass(IncrementalTaskInputs inputs) {
+    public void minifyCss(IncrementalTaskInputs inputs) {
         minifier().execute(cssFileDirectory, cssOutputDirectory);
     }
 
@@ -31,8 +37,17 @@ public class CssMinifyTask extends DefaultTask {
         this.isDeleteBeforeCompileFile = deleteDone;
         return this;
     }
+    public CssMinifyTask setPrefixer(List<SupportData> supportData, Predicate<SupportStatus> supportFilter) {
+        this.supportData = supportData;
+        this.supportFilter = supportFilter;
+        return this;
+    }
 
     public Minifier minifier() {
-        return new YuiCssMinifyCompiler(isDeleteBeforeCompileFile);
+        PhCssMinifyCompiler compiler = new PhCssMinifyCompiler(isDeleteBeforeCompileFile);
+        if (this.supportData != null) {
+            compiler.setPrefixer(this.supportData, this.supportFilter);
+        }
+        return compiler;
     }
 }
