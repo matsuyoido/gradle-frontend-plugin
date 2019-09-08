@@ -4,17 +4,13 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.reader.CSSReader;
-import com.helger.css.writer.CSSWriter;
 import com.helger.css.writer.CSSWriterSettings;
-import com.matsuyoido.caniuse.Browser;
-import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.task.Minifier;

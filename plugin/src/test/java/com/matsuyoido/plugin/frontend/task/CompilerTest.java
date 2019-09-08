@@ -60,16 +60,16 @@ public class CompilerTest {
     public void convertToOutputPath_nest() {
         // case
         String rootPath = "src/main/hogehoge";
-        Path inputRootPath = Path.of(rootPath);
-        Path outputRootPath = Path.of("src/test/hogehoge");
-        Path inputFilePath = Path.of(rootPath, "test/test.tmp");
+        Path inputRootPath = new File(rootPath).toPath();//Path.of(rootPath);
+        Path outputRootPath = new File("src/test/hogehoge").toPath();//Path.of("src/test/hogehoge");
+        Path inputFilePath = new File(rootPath, "test/test.tmp").toPath();//Path.of(rootPath, "test/test.tmp");
 
         Compiler compiler = new TestCompiler();
 
         // execute
         Path result = compiler.convetToOutputPath(inputRootPath, outputRootPath, inputFilePath);
 
-        Path expect = Path.of("src/test/hogehoge", "test/test.tmp");
+        Path expect = new File("src/test/hogehoge", "test/test.tmp").toPath();// Path.of("src/test/hogehoge", "test/test.tmp");
         assertThat(result.toString()).isEqualTo(expect.toString());
     }
 

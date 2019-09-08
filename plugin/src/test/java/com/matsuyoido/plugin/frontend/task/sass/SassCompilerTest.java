@@ -28,7 +28,7 @@ public class SassCompilerTest {
 
     @Test
     public void compile() {
-        Path sassFilePath = Path.of(SASS_FILE_DIR, "test.scss");
+        Path sassFilePath = new File(SASS_FILE_DIR, "test.scss").toPath();//Path.of(SASS_FILE_DIR, "test.scss");
 
         String result = compiler.compile(sassFilePath);
 

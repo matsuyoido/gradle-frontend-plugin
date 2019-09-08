@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+// import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -68,7 +68,8 @@ public class MainPluginTest {
         String text = buildScript.toString();
 
         System.out.println(text);
-        Files.writeString(buildGradle.toPath(), text);
+        // Files.writeString(buildGradle.toPath(), text);
+        Files.write(buildGradle.toPath(), text.getBytes());
     }
 
     @Test
@@ -270,17 +271,21 @@ public class MainPluginTest {
         File cssOutDir = new File(getProjectDir(), "build/resources/static/css");
         Path dataJsonPath = getProjectDir().toPath().resolve("data.json");
 
-        Files.copy(Path.of(PathUtil.classpathResourcePath("caniuse/data.json")), dataJsonPath);
+        // Files.copy(Path.of(PathUtil.classpathResourcePath("caniuse/data.json")), dataJsonPath);
+        Files.copy(new File(PathUtil.classpathResourcePath("caniuse/data.json")).toPath(), dataJsonPath);
         
         cssInDir.mkdirs();
         cssOutDir.mkdirs();
         File notCompileFile = new File(cssInDir, "notCompile.min.css");
         notCompileFile.createNewFile();
 
-        @SuppressWarnings("unused")
-        Path cssFile = Files.writeString(cssInDir.toPath().resolve("child.css"), 
-            "a { display: flex; }",
-            StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+        // @SuppressWarnings("unused")
+        // Path cssFile = Files.writeString(cssInDir.toPath().resolve("child.css"), 
+        //     "a { display: flex; }",
+        //     StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+        Files.write(cssInDir.toPath().resolve("child.css"), 
+        "a { display: flex; }".getBytes(),
+        StandardOpenOption.CREATE_NEW);
 
         setup(
             "frontend {",
@@ -304,7 +309,8 @@ public class MainPluginTest {
 
         BuildResult result = run("cssMinify");
         assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        String cssValue = Files.readString(cssOutDir.listFiles()[0].toPath());
+        // String cssValue = Files.readString(cssOutDir.listFiles()[0].toPath());
+        String cssValue = Files.readAllLines(cssOutDir.listFiles()[0].toPath()).stream().collect(Collectors.joining(System.lineSeparator()));
         assertThat(cssValue).isEqualTo("@charset \"UTF-8\";a{display:flex;display:-webkit-flex}");
 
         assertThat(cssOutDir.list()).hasSize(1)

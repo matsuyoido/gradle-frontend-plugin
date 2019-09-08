@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,7 +69,7 @@ public abstract class Compiler {
     }
 
     protected Set<Path> getTargets(File inputDirectory) throws IOException {
-        var matcher = FileSystems.getDefault().getPathMatcher(this.fileRegex);
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher(this.fileRegex);
         return Files
                 .find(inputDirectory.toPath(), Integer.MAX_VALUE,
                         (filePath, fileAttr) -> fileAttr.isRegularFile() && matcher.matches(filePath.getFileName()))

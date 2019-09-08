@@ -2,7 +2,6 @@ package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -60,10 +59,15 @@ public class PrefixerExtension implements Serializable {
 
     // #region getter
     public File getCaniuseData() {
+        return this.caniuseDataFile != null ? this.caniuseDataFile :
+            new File(getClass().getResource("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")
+                               .toExternalForm());
+        /*
         return Objects.requireNonNullElseGet(
             this.caniuseDataFile, () -> 
             new File(getClass().getResource("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")
                                .toExternalForm()));
+        */
     }
     public Predicate<SupportStatus> getSupportFilter() {
         return status -> 
@@ -80,32 +84,32 @@ public class PrefixerExtension implements Serializable {
         String version = null;
         switch(browser) {
             case "ie": 
-            isBrowserSupport = this.ie != null && !this.ie.isBlank();
+            isBrowserSupport = this.ie != null && !this.ie.trim().isEmpty(); //!this.ie.isBlank();
             version = this.ie;
             break;
             case "edge":
-            isBrowserSupport = this.edge != null && !this.edge.isBlank();
+            isBrowserSupport = this.edge != null && !this.edge.trim().isEmpty();//!this.edge.isBlank();
             version = this.edge;
             break;
             case "firefox":
-            isBrowserSupport = this.firefox != null && !this.firefox.isBlank();
+            isBrowserSupport = this.firefox != null && !this.firefox.trim().isEmpty();//!this.firefox.isBlank();
             version = this.firefox;
             break;
             case "chrome":
-            isBrowserSupport = this.chrome != null && !this.chrome.isBlank();
+            isBrowserSupport = this.chrome != null && !this.chrome.trim().isEmpty();//!this.chrome.isBlank();
             version = this.chrome;
             break;
             case "safari":
-            isBrowserSupport = this.safari != null && !this.safari.isBlank();
+            isBrowserSupport = this.safari != null && !this.safari.trim().isEmpty();//!this.safari.isBlank();
             version = this.safari;
             case "ios_saf":
-            isBrowserSupport = this.ios != null && !this.ios.isBlank();
+            isBrowserSupport = this.ios != null && !this.ios.trim().isEmpty();//!this.ios.isBlank();
             version = this.ios;
             break;
             case "android":
             case "and_ff":
             case "and_chr":
-            isBrowserSupport = this.android != null && !this.android.isBlank();
+            isBrowserSupport = this.android != null && !this.android.trim().isEmpty();//!this.android.isBlank();
             version = this.android;
             break;
             case "opera":

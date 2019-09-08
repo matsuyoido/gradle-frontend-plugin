@@ -25,10 +25,7 @@ import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.decl.ECSSSupportsConditionOperator;
 import com.helger.css.decl.ICSSTopLevelRule;
 import com.helger.css.reader.CSSReader;
-import com.matsuyoido.caniuse.Browser;
-import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.caniuse.SupportData;
-import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.SupportStatus;
 
 /**

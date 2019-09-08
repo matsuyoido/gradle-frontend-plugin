@@ -2,9 +2,6 @@ package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Objects;
-
-import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Nested;
 

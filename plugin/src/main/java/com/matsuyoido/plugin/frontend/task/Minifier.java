@@ -14,7 +14,7 @@ public abstract class Minifier extends Compiler {
 
     @Override
     protected void afterEvaluate(Path filePath, Path outputPath, Optional<Throwable> exception) {
-        if (exception.isEmpty() && this.isDeleteBeforeCompileFile) {
+        if (!exception.isPresent() && this.isDeleteBeforeCompileFile) {
             filePath.toFile().delete();
         }
         super.afterEvaluate(filePath, outputPath, exception);

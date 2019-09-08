@@ -37,7 +37,7 @@ public class JsMinifyTask extends DefaultTask {
 
     public Minifier minifier() {
         boolean isDeleteBeforeCompileFile = false;
-        switch (Objects.requireNonNullElse(minifierType, MinifierType.GOOGLE_CLOSURE)) {
+        switch (minifierType) {
             case YUI:
                 return new YuiJsMinifyCompiler(isDeleteBeforeCompileFile);
             case GOOGLE_CLOSURE:

@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
@@ -35,7 +36,7 @@ public class YuiJsMinifyCompiler extends Minifier {
                 JavaScriptCompressor compressor = new JavaScriptCompressor(reader, new ErrorHandle());
                 compressor.compress(writer, -1, munge, verbose, preserveAllSemiColons, disableOptimizations); // no break line
             }
-            return Files.readString(tempFile.toPath());
+            return Files.readAllLines(tempFile.toPath()).stream().collect(Collectors.joining()); // Files.readString(tempFile.toPath());
         } catch (IOException e) {
             throw new GradleException("compile fail", e);
         }

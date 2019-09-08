@@ -5,12 +5,8 @@ import com.matsuyoido.plugin.frontend.extension.PrefixerExtension;
 import com.matsuyoido.plugin.frontend.extension.RootExtension;
 
 import java.io.IOException;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import com.matsuyoido.caniuse.CanIUse;
-import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.extension.CssExtension;
 import com.matsuyoido.plugin.frontend.task.css.CssMinifyTask;
 import com.matsuyoido.plugin.frontend.task.js.JsMinifyTask;

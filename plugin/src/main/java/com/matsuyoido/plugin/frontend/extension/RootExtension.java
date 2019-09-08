@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Nested;
-import org.gradle.util.ConfigureUtil;
 
 import groovy.lang.Closure;
 
@@ -14,10 +13,10 @@ import groovy.lang.Closure;
  * <pre>
  * ___ {
  *   css {
- *     @see CssExtension.class
+ *     CssExtension.class
  *   }
  *   js {
- *     @see JavaScriptExtension.class
+ *     JavaScriptExtension.class
  *   }
  * }
  * </pre>

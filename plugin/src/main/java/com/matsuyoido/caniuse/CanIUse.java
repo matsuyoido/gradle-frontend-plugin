@@ -23,17 +23,14 @@ public class CanIUse {
     protected List<SupportData> supports;
 
     public CanIUse(File dataFile) throws IOException {
-        setup(Files.readString(dataFile.toPath()));
+        setup(Files.readAllLines(dataFile.toPath()).stream().collect(Collectors.joining(System.lineSeparator())));
+        // setup(Files.readString(dataFile.toPath()));
     }
 
     public Map<String, Browser> getBrowsers() {
         return this.browsers;
     }
 
-    /**
-     * 
-     * @return key: cssKeyword
-     */
     public List<SupportData> getCssSupports() {
         return this.supports.stream()
                             .filter(d -> 

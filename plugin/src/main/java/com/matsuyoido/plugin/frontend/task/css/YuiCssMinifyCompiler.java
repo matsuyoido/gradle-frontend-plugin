@@ -30,7 +30,7 @@ public class YuiCssMinifyCompiler extends Minifier {
                 CssCompressor compressor = new CssCompressor(reader);
                 compressor.compress(writer, -1); // no break line
             }
-            return Files.readString(tempFile.toPath());
+            return ""; //Files.readString(tempFile.toPath());
         } catch (IOException e) {
             throw new GradleException("compile fail", e);
         }
