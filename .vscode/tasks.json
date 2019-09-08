@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "command": "cd _master; ./gradlew.bat",
+    "tasks": [
+        {
+            "label": "refresh classpath",
+            "type": "shell",
+            "command": "cd _master; ./gradlew.bat cleanEclipse eclipse pluginUnderTestMetadata"
+        },
+        {
+            "label": "plugin publish",
+            "type": "shell",
+            "command": "cd _master; ./gradlew.bat :plugin:publishPlugins --stacktrace"
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+@import "import";
+@import "function";
+
+$font-size: 1px;
+
+* {
+    p {
+        font-size: 1rem;
+    }
+    span {
+        font-size: $font-size;
+    }
+
+    @include mq(lg) {
+        color: black;
+    }
+}
