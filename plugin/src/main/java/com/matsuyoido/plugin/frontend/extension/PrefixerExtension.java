@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.SupportStatus;
-import com.matsuyoido.model.Version;
+import com.matsuyoido.caniuse.Version;
 
 /**
  * PrefixerExtension

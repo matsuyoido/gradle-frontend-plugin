@@ -1,4 +1,4 @@
-package com.matsuyoido.model;
+package com.matsuyoido.caniuse;
 
 /**
  * Version
@@ -11,7 +11,11 @@ public class Version implements Comparable<Version> {
 
     public Version(String version) {
         this.version = version;
-        if (version.matches("[0-9]+(\\.[0-9]+)*")) {
+        if ("TP".equals(version)) { // Safari Technology Preview
+            this.isLatest = true;
+        } else if ("all".equals(version)) { // Opera mini all
+            this.isLatest = true;
+        } else if (version.matches("[0-9]+(\\.[0-9]+)*")) {
             this.parts = version.split("\\.");
         } else {
             this.isLatest = true;
