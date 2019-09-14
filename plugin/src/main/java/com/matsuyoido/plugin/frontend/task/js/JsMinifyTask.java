@@ -18,6 +18,7 @@ public class JsMinifyTask extends DefaultTask {
 
     @TaskAction
     public void compileJs(IncrementalTaskInputs inputs) {
+        jsOutputDirectory.mkdirs();
         minifier().execute(jsFileDirectory, jsOutputDirectory);
     }
 

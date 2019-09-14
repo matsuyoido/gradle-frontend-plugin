@@ -19,6 +19,7 @@ public class CssMinifyTask extends DefaultTask {
 
     @TaskAction
     public void minifyCss(IncrementalTaskInputs inputs) {
+        cssOutputDirectory.mkdirs();
         minifier().execute(cssFileDirectory, cssOutputDirectory);
     }
 
