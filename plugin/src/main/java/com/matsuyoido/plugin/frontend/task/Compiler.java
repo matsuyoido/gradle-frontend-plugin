@@ -46,7 +46,9 @@ public abstract class Compiler {
         Throwable exception = null;
         try {
             String content = compile(filePath);
-            outputFile(outputPath.toFile(), content);
+            if (content != null && !content.isEmpty()) {
+                outputFile(outputPath.toFile(), content);
+            }
         } catch (Throwable t) {
             exception = t;
         }

@@ -25,7 +25,7 @@ public class JavaScriptExtension {
     public void outDir(File path) {
         this.outDir = path;
     }
-    public void type(String type) {
+    public void setType(String type) {
         switch (type) {
             case "yahoo":
                 this.type = MinifierType.YUI;

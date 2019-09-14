@@ -3,7 +3,6 @@ package com.matsuyoido.plugin.frontend.extension;
 import java.io.File;
 import java.io.Serializable;
 // import java.util.Objects;
-import java.util.jar.JarFile;
 
 /**
  * PrefixerExtension
