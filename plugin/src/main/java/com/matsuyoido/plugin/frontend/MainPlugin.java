@@ -19,7 +19,6 @@ import org.gradle.api.tasks.TaskContainer;
 
 public class MainPlugin implements Plugin<Project> {
     private static final String COMPILE_GROUP = "compile";
-    private static final String PRD_GROUP = "prd";
     private RootExtension extension;
 
     @Override
@@ -71,6 +70,7 @@ public class MainPlugin implements Plugin<Project> {
         }
 
         task.setGroup(COMPILE_GROUP);
+        task.setDescription("SCSS(SASS) to CSS file.");
         return task;
     }
 
@@ -100,7 +100,8 @@ public class MainPlugin implements Plugin<Project> {
             .setOutputFileDirectory(extension.getOutDir())
             .setDeleteBeforeCompileFile(extension.isOriginFileDelete());
 
-        task.setGroup(PRD_GROUP);
+        task.setGroup(COMPILE_GROUP);
+        task.setDescription("CSS to min file.");
         return task;
     }
 
@@ -120,7 +121,8 @@ public class MainPlugin implements Plugin<Project> {
             .setOutputFileDirectory(extension.getOutputDir())
             .setMinifierType(extension.getMinifierType());
 
-        task.setGroup(PRD_GROUP);
+        task.setGroup(COMPILE_GROUP);
+        task.setDescription("JS to min file.");
         return task;
     }
 }
