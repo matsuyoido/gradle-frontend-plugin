@@ -1,8 +1,13 @@
 package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 // import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * PrefixerExtension
@@ -53,9 +58,21 @@ public class PrefixerExtension implements Serializable {
 
     // #region getter
     public File getCaniuseData() {
-        return this.caniuseDataFile != null ? this.caniuseDataFile :
-            new File(getClass().getResource("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")
-                               .toExternalForm());
+        if (this.caniuseDataFile != null) {
+            return this.caniuseDataFile;
+        } else {
+            try {
+                Path jsonFile = Files.createTempFile("plugin-", ".json");
+                try (InputStream in = getClass().getResourceAsStream("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")) {
+                    Files.copy(in, jsonFile, StandardCopyOption.REPLACE_EXISTING);
+                    File result = jsonFile.toFile();
+                    result.deleteOnExit();
+                    return result;
+                }
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         /*
         return Objects.requireNonNullElseGet(
             this.caniuseDataFile, () -> 
