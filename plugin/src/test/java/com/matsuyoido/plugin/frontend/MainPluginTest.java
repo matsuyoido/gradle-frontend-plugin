@@ -307,7 +307,7 @@ public class MainPluginTest {
            "}"
         );
 
-        BuildResult result = run("cssMinify");
+        BuildResult result = run("cssMinify", "--stacktrace");
         assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         // String cssValue = Files.readString(cssOutDir.listFiles()[0].toPath());
         String cssValue = Files.readAllLines(cssOutDir.listFiles()[0].toPath()).stream().collect(Collectors.joining(System.lineSeparator()));

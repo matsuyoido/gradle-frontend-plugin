@@ -43,6 +43,6 @@ public class JavaScriptExtension {
         return this.outDir;
     }
     public MinifierType getMinifierType() {
-        return this.type;
+        return this.type == null ? MinifierType.GOOGLE_CLOSURE : this.type;
     }
 }

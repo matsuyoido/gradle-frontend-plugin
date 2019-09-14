@@ -89,8 +89,8 @@ public class MainPlugin implements Plugin<Project> {
         if (extension.isPrefixerEnable()) {
             PrefixerExtension prefixerExtension = extension.prefixerConfig();
             try {
-                CanIUse caniuse = new CanIUse(prefixerExtension.getCaniuseData());
-                task.setPrefixer(caniuse.getCssSupports(), prefixerExtension.getSupportFilter());
+                CanIUse caniuse = new PrefixerCanIUse(prefixerExtension);
+                task.setPrefixer(caniuse.getCssSupports());
             } catch (IOException e) {
                 throw new GradleException(e.getMessage(), e);
             }

@@ -1,7 +1,7 @@
 package com.matsuyoido.plugin.frontend.task.js;
 
 import java.io.File;
-import java.util.Objects;
+// import java.util.Objects;
 
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.matsuyoido.plugin.frontend.task.MinifierType;

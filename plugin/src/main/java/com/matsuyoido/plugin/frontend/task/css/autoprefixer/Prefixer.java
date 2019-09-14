@@ -1,5 +1,6 @@
 package com.matsuyoido.plugin.frontend.task.css.autoprefixer;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.helger.css.ECSSVersion;
+import com.helger.css.ICSSWriterSettings;
 import com.helger.css.decl.CSSDeclaration;
 import com.helger.css.decl.CSSExpression;
 import com.helger.css.decl.CSSExpressionMemberTermSimple;
@@ -25,6 +26,7 @@ import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.decl.ECSSSupportsConditionOperator;
 import com.helger.css.decl.ICSSTopLevelRule;
 import com.helger.css.reader.CSSReader;
+import com.helger.css.writer.CSSWriterSettings;
 import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.caniuse.SupportStatus;
 
@@ -32,6 +34,142 @@ import com.matsuyoido.caniuse.SupportStatus;
  * Prefixer
  */
 public class Prefixer {
+
+    private ICSSWriterSettings writeSetting;
+    // key: property
+    private Map<String, CssSupport> supportMap = new HashMap<>();
+
+    public Prefixer(List<SupportData> supportData) {
+        supportData.forEach(data -> {
+            setupCssPrefixer(data.getKey(), data.getSupports());
+        });
+        this.writeSetting = CSSWriterSettings.DEFAULT_SETTINGS;
+    }
+
+    public Prefixer(CSSWriterSettings settings, List<SupportData> supportData) {
+        this(supportData);
+        this.writeSetting = settings;
+    }
+    
+    public String addPrefix(File file) {
+        return addPrefix(CSSReader.readFromFile(file, StandardCharsets.UTF_8, ECSSVersion.CSS30));
+    }
+
+    public String addPrefix(String cssText) {
+        return addPrefix(CSSReader.readFromString(cssText, StandardCharsets.UTF_8, ECSSVersion.CSS30));
+    }
+
+	private String addPrefix(CascadingStyleSheet css) {
+        List<ICSSTopLevelRule> mainCssRule = new ArrayList<>();
+        css.getAllRules().forEach(r -> {
+            if (r instanceof CSSStyleRule) {
+                mainCssRule.add(createPrefixedRule((CSSStyleRule) r));
+            } else if (r instanceof CSSMediaRule) {
+                CSSMediaRule rule = (CSSMediaRule) r;
+                Stream<ICSSTopLevelRule> ruleStream = rule.getAllRules().stream()
+                        .map(innerRule -> (innerRule instanceof CSSStyleRule)
+                                ? createPrefixedRule((CSSStyleRule) innerRule)
+                                : innerRule);
+                rule.removeAllRules();
+                ruleStream.forEach(rule::addRule);
+                mainCssRule.add(rule);
+            } else if (r instanceof CSSSupportsRule) {
+                CSSSupportsRule rule = (CSSSupportsRule) r;
+                CSSSupportsConditionNested support = new CSSSupportsConditionNested();
+                rule.getAllSupportConditionMembers().forEach(supportMember -> {
+                    if (supportMember instanceof CSSSupportsConditionDeclaration) {
+                        CSSSupportsConditionDeclaration supportDeclaration = (CSSSupportsConditionDeclaration) supportMember;
+                        createPrefixedDeclaration(supportDeclaration.getDeclaration()).stream()
+                                .map(CSSSupportsConditionDeclaration::new).forEach(newDeclaration -> {
+                                    support.addMember(newDeclaration);
+                                    support.addMember(ECSSSupportsConditionOperator.OR);
+                                });
+                    }
+                    support.addMember(supportMember);
+                });
+                Stream<ICSSTopLevelRule> ruleStream = rule.getAllRules().stream().map(innerRule -> {
+                    if (innerRule instanceof CSSStyleRule) {
+                        return createPrefixedRule((CSSStyleRule) innerRule);
+                    }
+                    return innerRule;
+                });
+
+                rule.removeAllSupportsConditionMembers();
+                rule.addSupportConditionMember(support);
+                rule.removeAllRules();
+                ruleStream.forEach(rule::addRule);
+                mainCssRule.add(rule);
+            } else {
+                mainCssRule.add(r);
+            }
+        });
+
+        StringBuilder value = new StringBuilder();
+        appendNewLineIfNotMinify(value, String.format("@charset \"%s\";", StandardCharsets.UTF_8.name()));
+        css.getAllImportRules().forEach(importCss -> appendNewLineIfNotMinify(value, importCss.getAsCSSString(writeSetting)));
+        css.getAllNamespaceRules().forEach(nameSpaceCss -> appendNewLineIfNotMinify(value, nameSpaceCss.getAsCSSString(writeSetting)));
+        mainCssRule.forEach(mainCss -> appendNewLineIfNotMinify(value, mainCss.getAsCSSString(writeSetting)));
+        return value.toString();
+    }
+
+    private void appendNewLineIfNotMinify(StringBuilder builder, String value) {
+        builder.append(value);
+        if (!this.writeSetting.isOptimizedOutput()) {
+            builder.append(System.lineSeparator());
+        }
+    }
+
+    private CSSStyleRule createPrefixedRule(CSSStyleRule rule) {
+        CSSStyleRule newCss = new CSSStyleRule();
+        rule.getAllSelectors().forEach(newCss::addSelector);
+        // already added prefix remove
+        Map<String, CSSDeclaration> declarations = new HashMap<>();
+        rule.getAllDeclarations().forEach(declaration -> {
+            String property = declaration.getProperty();
+            declarations.put(removedPrefixer.apply(property), declaration);
+        });
+
+        declarations.values().forEach(declaration -> {
+            createPrefixedDeclaration(declaration).forEach(newCss::addDeclaration);
+        });
+        return newCss;
+    }
+
+    private Collection<CSSDeclaration> createPrefixedDeclaration(
+            CSSDeclaration declaration) {
+        String cssProperty = removedPrefixer.apply(declaration.getProperty());
+        String cssValue = removedPrefixer.apply(declaration.getExpressionAsCSSString());
+        if (this.supportMap.containsKey(cssProperty)) {
+            CssSupport support = this.supportMap.get(cssProperty);
+            Map<String, CSSDeclaration> prefixerDeclaration = new HashMap<>();
+            if (!support.anySupport.isEmpty()) {
+                prefixerDeclaration.put("", new CSSDeclaration(cssProperty, declaration.getExpression()));
+                support.anySupport.stream()
+                        .forEach(status -> 
+                            prefixerDeclaration.put(status.getPrefixer(),
+                                new CSSDeclaration(String.format("-%s-%s", status.getPrefixer(), cssProperty),
+                                        declaration.getExpression()))
+                            
+                        );
+            } else {
+                prefixerDeclaration.put("", new CSSDeclaration(cssProperty,
+                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple(cssValue))));
+                support.specificSupport.entrySet().stream().filter(es -> cssValue.contains(es.getKey())).findFirst()
+                        .ifPresent(es -> {
+                            es.getValue().stream()
+                                .forEach(status -> {
+                                    CSSExpression expression = new CSSExpression();
+                                        expression.addMember(new CSSExpressionMemberTermSimple(
+                                                String.format("-%s-%s", status.getPrefixer(), cssValue)));
+                                        prefixerDeclaration.put(status.getPrefixer(),
+                                                new CSSDeclaration(cssProperty, expression));
+                                });
+                        });
+            }
+            return prefixerDeclaration.values();
+        }
+        return Collections.singleton(declaration);
+    }
 
     private Function<String, String> removedPrefixer = val -> {
         String webkit = "-webkit-";
@@ -52,129 +190,8 @@ public class Prefixer {
         }
         return val;
     };
-    // key: property
-    private Map<String, CssSupport> supportMap = new HashMap<>();
 
-    private class CssSupport {
-        private List<SupportStatus> anySupport = Collections.emptyList();
-        private Map<String, List<SupportStatus>> specificSupport = new HashMap<>();
-    }
-
-    public Prefixer(List<SupportData> supportData) {
-        supportData.forEach(data -> {
-            setupCssPrefixer(data.getKey(), data.getSupports());
-        });
-    }
-
-    public String addPrefix(String cssText, Predicate<SupportStatus> supportFilter) {
-        String newLine = System.lineSeparator();
-        CascadingStyleSheet css = CSSReader.readFromString(cssText, StandardCharsets.UTF_8, ECSSVersion.CSS30);
-
-        List<ICSSTopLevelRule> mainCssRule = new ArrayList<>();
-        css.getAllRules().forEach(r -> {
-            if (r instanceof CSSStyleRule) {
-                mainCssRule.add(createPrefixedRule(supportFilter, (CSSStyleRule) r));
-            } else if (r instanceof CSSMediaRule) {
-                CSSMediaRule rule = (CSSMediaRule) r;
-                Stream<ICSSTopLevelRule> ruleStream = rule.getAllRules().stream()
-                        .map(innerRule -> (innerRule instanceof CSSStyleRule)
-                                ? createPrefixedRule(supportFilter, (CSSStyleRule) innerRule)
-                                : innerRule);
-                rule.removeAllRules();
-                ruleStream.forEach(rule::addRule);
-                mainCssRule.add(rule);
-            } else if (r instanceof CSSSupportsRule) {
-                CSSSupportsRule rule = (CSSSupportsRule) r;
-                CSSSupportsConditionNested support = new CSSSupportsConditionNested();
-                rule.getAllSupportConditionMembers().forEach(supportMember -> {
-                    if (supportMember instanceof CSSSupportsConditionDeclaration) {
-                        CSSSupportsConditionDeclaration supportDeclaration = (CSSSupportsConditionDeclaration) supportMember;
-                        createPrefixedDeclaration(supportFilter, supportDeclaration.getDeclaration()).stream()
-                                .map(CSSSupportsConditionDeclaration::new).forEach(newDeclaration -> {
-                                    support.addMember(newDeclaration);
-                                    support.addMember(ECSSSupportsConditionOperator.OR);
-                                });
-                    }
-                    support.addMember(supportMember);
-                });
-                Stream<ICSSTopLevelRule> ruleStream = rule.getAllRules().stream().map(innerRule -> {
-                    if (innerRule instanceof CSSStyleRule) {
-                        return createPrefixedRule(supportFilter, (CSSStyleRule) innerRule);
-                    }
-                    return innerRule;
-                });
-
-                rule.removeAllSupportsConditionMembers();
-                rule.addSupportConditionMember(support);
-                rule.removeAllRules();
-                ruleStream.forEach(rule::addRule);
-                mainCssRule.add(rule);
-            } else {
-                mainCssRule.add(r);
-            }
-        });
-
-        StringBuilder value = new StringBuilder();
-        value.append(String.format("@charset \"%s\";", StandardCharsets.UTF_8.name())).append(newLine);
-        css.getAllImportRules().forEach(importCss -> value.append(importCss.getAsCSSString()).append(newLine));
-        css.getAllNamespaceRules().forEach(nameSpaceCss -> value.append(nameSpaceCss.getAsCSSString()).append(newLine));
-        mainCssRule.forEach(mainCss -> value.append(mainCss.getAsCSSString()));
-        return value.toString();
-    }
-
-    private CSSStyleRule createPrefixedRule(Predicate<SupportStatus> supportFilter, CSSStyleRule rule) {
-        CSSStyleRule newCss = new CSSStyleRule();
-        rule.getAllSelectors().forEach(newCss::addSelector);
-        // already added prefix remove
-        Map<String, CSSDeclaration> declarations = new HashMap<>();
-        rule.getAllDeclarations().forEach(declaration -> {
-            String property = declaration.getProperty();
-            declarations.put(removedPrefixer.apply(property), declaration);
-        });
-
-        declarations.values().forEach(declaration -> {
-            createPrefixedDeclaration(supportFilter, declaration).forEach(newCss::addDeclaration);
-        });
-        return newCss;
-    }
-
-    private Collection<CSSDeclaration> createPrefixedDeclaration(Predicate<SupportStatus> supportFilter,
-            CSSDeclaration declaration) {
-        String cssProperty = removedPrefixer.apply(declaration.getProperty());
-        String cssValue = removedPrefixer.apply(declaration.getExpressionAsCSSString());
-        if (this.supportMap.containsKey(cssProperty)) {
-            CssSupport support = this.supportMap.get(cssProperty);
-            Map<String, CSSDeclaration> prefixerDeclaration = new HashMap<>();
-            if (!support.anySupport.isEmpty()) {
-                prefixerDeclaration.put("", new CSSDeclaration(cssProperty, declaration.getExpression()));
-                support.anySupport.stream()
-                        .filter(supportFilter)
-                        .forEach(status -> 
-                            prefixerDeclaration.put(status.getPrefixer(),
-                                new CSSDeclaration(String.format("-%s-%s", status.getPrefixer(), cssProperty),
-                                        declaration.getExpression()))
-                            
-                        );
-            } else {
-                prefixerDeclaration.put("", new CSSDeclaration(cssProperty,
-                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple(cssValue))));
-                support.specificSupport.entrySet().stream().filter(es -> cssValue.contains(es.getKey())).findFirst()
-                        .ifPresent(es -> {
-                            es.getValue().stream()
-                                .filter(supportFilter)
-                                .forEach(status -> {
-                                    CSSExpression expression = new CSSExpression();
-                                        expression.addMember(new CSSExpressionMemberTermSimple(
-                                                String.format("-%s-%s", status.getPrefixer(), cssValue)));
-                                        prefixerDeclaration.put(status.getPrefixer(),
-                                                new CSSDeclaration(cssProperty, expression));
-                                });
-                        });
-            }
-            return prefixerDeclaration.values();
-        }
-        return Collections.singleton(declaration);
-    }
+    //#region initialize setup
 
     /**
      * @see https://github.com/postcss/autoprefixer/blob/master/data/prefixes.js
@@ -213,7 +230,6 @@ public class Prefixer {
                         Stream.of("linear-gradient", "repeating-linear-gradient", "radial-gradient",
                                 "repeating-radial-gradient").forEach(cssValue -> addSupport(prop, cssValue, supports));
                     });
-            ;
             break;
         case "css3-boxsizing":
             addSupport("box-sizing", supports);
@@ -394,4 +410,10 @@ public class Prefixer {
         }
     }
 
+    //#endregion
+}
+
+class CssSupport {
+    List<SupportStatus> anySupport = Collections.emptyList();
+    Map<String, List<SupportStatus>> specificSupport = new HashMap<>();
 }

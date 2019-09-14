@@ -5,14 +5,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Predicate;
 
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.reader.CSSReader;
 import com.helger.css.writer.CSSWriterSettings;
 import com.matsuyoido.caniuse.SupportData;
-import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.matsuyoido.plugin.frontend.task.css.autoprefixer.Prefixer;
 
@@ -27,25 +25,26 @@ public class PhCssMinifyCompiler extends Minifier {
 
     private boolean isAddPrefixer;
     private Prefixer prefixer;
-    private Predicate<SupportStatus> supportFilter;
 
     public PhCssMinifyCompiler(boolean isDeleteBeforeCompileFile) {
         super("css", isDeleteBeforeCompileFile);
     }
-	public void setPrefixer(List<SupportData> supportData, Predicate<SupportStatus> supportFilter) {
+
+    public PhCssMinifyCompiler(List<SupportData> supportData, boolean isDeleteBeforeCompileFile) {
+        this(isDeleteBeforeCompileFile);
         this.isAddPrefixer = true;
-        this.prefixer = new Prefixer(supportData);
-        this.supportFilter = supportFilter;
-	}
+        this.prefixer = new Prefixer(settings, supportData);
+    }
+
 
     @Override
     protected String compile(Path filePath) {
-        String css = readCss(filePath.toFile());
+        File cssFile = filePath.toFile();
         if (isAddPrefixer) {
-            return convertString(
-                CSSReader.readFromString(this.prefixer.addPrefix(css, this.supportFilter), charset, cssVersion));
+            return this.prefixer.addPrefix(cssFile);
+        } else {
+            return readCss(cssFile);
         }
-        return css;
     }
 
     private String readCss(File file) {
