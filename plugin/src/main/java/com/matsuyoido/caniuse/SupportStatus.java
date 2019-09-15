@@ -11,7 +11,7 @@ public class SupportStatus {
 
     private String browser;
     private String prefixer;
-    private Map<String, SupportLevel> supportVersionMap;
+    private Map<Version, SupportLevel> supportVersionMap;
 
     //#region getter
     public String getBrowser() {
@@ -20,7 +20,7 @@ public class SupportStatus {
     public String getPrefixer() {
         return this.prefixer;
     }
-    public Map<String, SupportLevel> getSupportVersionMap() {
+    public Map<Version, SupportLevel> getSupportVersionMap() {
         return this.supportVersionMap == null ? Collections.emptyMap() : this.supportVersionMap;
     }
     //#endregion
@@ -30,11 +30,12 @@ public class SupportStatus {
         this.browser = browser;
         this.prefixer = prefixer;
     }
-    public void addSupportVersion(String version, String val) {
+    public void addSupportVersion(Version version, SupportLevel level) {
         if (this.supportVersionMap == null) {
             this.supportVersionMap = new HashMap<>();
         }
-        this.supportVersionMap.put(version, SupportLevel.of(val));
+
+        this.supportVersionMap.put(version, level);
     }
     //#endregion
 

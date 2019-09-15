@@ -27,7 +27,7 @@ public class YuiCssMinifyCompilerTest {
     
     @Test
     public void compile() {
-        Path cssFilePath = Path.of(CSS_FILE_DIR, "test.css");
+        Path cssFilePath = new File(CSS_FILE_DIR, "test.css").toPath();//Path.of(CSS_FILE_DIR, "test.css");
         
         String result = compiler.compile(cssFilePath);
 

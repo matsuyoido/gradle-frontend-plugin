@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+// import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.yahoo.platform.yui.compressor.CssCompressor;
@@ -30,7 +32,7 @@ public class YuiCssMinifyCompiler extends Minifier {
                 CssCompressor compressor = new CssCompressor(reader);
                 compressor.compress(writer, -1); // no break line
             }
-            return ""; //Files.readString(tempFile.toPath());
+            return Files.readAllLines(tempFile.toPath()).stream().collect(Collectors.joining()); //Files.readString(tempFile.toPath());
         } catch (IOException e) {
             throw new GradleException("compile fail", e);
         }

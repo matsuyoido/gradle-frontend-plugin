@@ -75,7 +75,7 @@ public class PrefixerTest {
     
     @Test
     public void addPrefix_mediaScreen() {
-        String result = prefixer.addPrefix(this.mediaCss, x -> true);
+        String result = prefixer.addPrefix(this.mediaCss);
 
         assertThat(result)
                 .containsOnlyOnce("@media screen and (min-width:480px) {")
@@ -93,7 +93,7 @@ public class PrefixerTest {
 
     @Test
     public void addPrefix_support() {
-        String result = prefixer.addPrefix(this.supportCss, x -> true);
+        String result = prefixer.addPrefix(this.supportCss);
 
         assertThat(result)
                 .containsOnlyOnce("@supports")
@@ -103,7 +103,7 @@ public class PrefixerTest {
 
     @Test
     public void addPrefix_viewport() {
-        String result = prefixer.addPrefix(this.viewportCss, x -> true);
+        String result = prefixer.addPrefix(this.viewportCss);
 
         assertThat(result)
                 .containsOnlyOnce("@viewport {")
@@ -113,7 +113,7 @@ public class PrefixerTest {
 
     @Test
     public void addPrefix_lineClamp() {
-        String result = prefixer.addPrefix(this.lineClampCss, x -> true);
+        String result = prefixer.addPrefix(this.lineClampCss);
 
         assertThat(result)
                 .containsOnlyOnce("display:-webkit-box;")
@@ -134,7 +134,7 @@ public class PrefixerTest {
         "}"
         );
 
-        String result = prefixer.addPrefix(css, x -> true);
+        String result = prefixer.addPrefix(css);
 
         assertThat(result)
                 .containsOnlyOnce("display:flex")

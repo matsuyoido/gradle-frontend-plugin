@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class Browser {
 
-    private String key;
+    private String agentName;
     private String browser;
     private String abbr;
     private String prefix;
@@ -20,8 +20,8 @@ public class Browser {
     private List<String> versions;
     
     //#region getter
-    public String getKey() {
-        return this.key;
+    public String getAgent() {
+        return this.agentName;
     }
     public String getBrowser() {
         return this.browser;
@@ -44,8 +44,8 @@ public class Browser {
     //#endregion
 
     //#region setter
-    public void setKey(String key) {
-        this.key = key;
+    public void setAgentName(String agent) {
+        this.agentName = agent;
     }
     public void setBrowser(String browser) {
         this.browser = browser;
