@@ -324,9 +324,7 @@ public class MainPluginTest {
 
         jsInDir.mkdirs();
         jsOutDir.mkdirs();
-        File jsFile = new File(jsInDir, "child-empty.js");
         File notCompileFile = new File(jsInDir, "compiled.min.js");
-        jsFile.createNewFile();
         notCompileFile.createNewFile();
         Files.write(jsInDir.toPath().resolve("child.js"), 
         "function hoge() {}".getBytes(),

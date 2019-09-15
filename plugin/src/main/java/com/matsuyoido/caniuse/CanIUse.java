@@ -107,7 +107,9 @@ public class CanIUse {
                             support.addSupportVersion(version, supportLevel);
                         }
                     });
-                    supports.add(support);
+                    if (!support.getSupportVersionMap().isEmpty()) {
+                        supports.add(support);   
+                    }
                 }
             });
 
