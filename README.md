@@ -59,7 +59,7 @@ frontend {
         prefixer {
             // specify data.json from https://github.com/Fyrd/caniuse/blob/master/data.json
             // If don't set and enable=true, data.json is used from caniuse-db-1.0.30000748
-            caniuseData = file("$projectDir/caniuse/data.json")
+            caniuseData = file("$rootDir/caniuse/data.json")
             // If set version string(ex. "76" or "all"), specified greater version check css supports & add prefixer.
             ie = ""
             edge = ""
