@@ -239,6 +239,34 @@ public class MainPluginTest {
     }
 
     @Test
+    public void sassCompileTask_alwaysRun() throws IOException {
+        File sassDir = new File(getProjectDir(), "src/main/sass");
+        File cssDir = new File(getProjectDir(), "src/main/resources/static/css");
+
+        sassDir.mkdirs();
+        cssDir.mkdirs();
+        File sassFile = new File(sassDir, "child.scss");
+        File notCompileFile = new File(sassDir, "_notCompile.scss");
+        sassFile.createNewFile();
+        notCompileFile.createNewFile();
+
+        setup(
+            "frontend {",
+            "  css {",
+            "    sassDir = file(\"$projectDir/src/main/sass\")",
+            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "    originDeleted = true",
+            "  }",
+           "}"
+        );
+
+        BuildResult result = run("sassCompile");
+
+        assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(run("sassCompile").task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    }
+
+    @Test
     public void cssMinify_onlyMinify() throws IOException {
         File cssInDir = new File(getProjectDir(), "src/main/resources/static/css");
         File cssOutDir = new File(getProjectDir(), "build/resources/static/css");
