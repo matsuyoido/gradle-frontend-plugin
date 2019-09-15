@@ -24,7 +24,7 @@ public class GoogleClosureMinifyCompilerTest {
 
     @Test
     public void compile() {
-        Path jsFilePath = Path.of(JS_FILE_DIR, "test.js");
+        Path jsFilePath = new File(JS_FILE_DIR, "test.js").toPath();//Path.of(JS_FILE_DIR, "test.js");
 
         String result = compiler.compile(jsFilePath);
 

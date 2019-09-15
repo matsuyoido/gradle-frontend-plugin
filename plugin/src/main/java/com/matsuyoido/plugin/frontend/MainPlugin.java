@@ -19,7 +19,9 @@ import org.gradle.api.tasks.TaskContainer;
 
 public class MainPlugin implements Plugin<Project> {
     private static final String COMPILE_GROUP = "compile";
-    private static final String PRD_GROUP = "prd";
+    private static final String SASS_TASK_NAME = "sassCompile";
+    private static final String CSS_MIN_TASK_NAME = "cssMinify";
+    private static final String JS_MIN_TASK_NAME = "jsMinify";
     private RootExtension extension;
 
     @Override
@@ -44,6 +46,13 @@ public class MainPlugin implements Plugin<Project> {
         if (isActiveJsMinify()) {
             setupJsMinifyTask(taskContainer);
         }
+        // project.getGradle()
+        //        .getTaskGraph()
+        //        .whenReady(graph -> {
+        //             if (graph.hasTask(SASS_TASK_NAME)) {
+                        
+        //             }
+        //        });
     }
 
     private boolean isActiveSassCompile() {
@@ -56,7 +65,7 @@ public class MainPlugin implements Plugin<Project> {
 
     private SassCompileTask setupSassCompileTask(TaskContainer taskFactory, CssMinifyTask minifyTask) {
         CssExtension extension = getExtension().cssConfigure();
-        SassCompileTask task = taskFactory.create("sassCompile", SassCompileTask.class);
+        SassCompileTask task = taskFactory.create(SASS_TASK_NAME, SassCompileTask.class);
 
         task.setSassFileDirectory(extension.getSassDir())
             .setOutputFileDirectory(extension.getCssDir());
@@ -71,6 +80,8 @@ public class MainPlugin implements Plugin<Project> {
         }
 
         task.setGroup(COMPILE_GROUP);
+        task.setDescription("SCSS(SASS) to CSS file.");
+        task.getOutputs().upToDateWhen(t -> false); // always run setting
         return task;
     }
 
@@ -85,12 +96,12 @@ public class MainPlugin implements Plugin<Project> {
 
     private CssMinifyTask setupCssMinifyTask(TaskContainer taskFactory) {
         CssExtension extension = getExtension().cssConfigure();
-        CssMinifyTask task = taskFactory.create("cssMinify", CssMinifyTask.class);
+        CssMinifyTask task = taskFactory.create(CSS_MIN_TASK_NAME, CssMinifyTask.class);
         if (extension.isPrefixerEnable()) {
             PrefixerExtension prefixerExtension = extension.prefixerConfig();
             try {
-                CanIUse caniuse = new CanIUse(prefixerExtension.getCaniuseData());
-                task.setPrefixer(caniuse.getCssSupports(), prefixerExtension.getSupportFilter());
+                CanIUse caniuse = new PrefixerCanIUse(prefixerExtension);
+                task.setPrefixer(caniuse.getCssSupports());
             } catch (IOException e) {
                 throw new GradleException(e.getMessage(), e);
             }
@@ -100,7 +111,9 @@ public class MainPlugin implements Plugin<Project> {
             .setOutputFileDirectory(extension.getOutDir())
             .setDeleteBeforeCompileFile(extension.isOriginFileDelete());
 
-        task.setGroup(PRD_GROUP);
+        task.setGroup(COMPILE_GROUP);
+        task.setDescription("CSS to min file.");
+        task.getOutputs().upToDateWhen(t -> false); // always run setting
         return task;
     }
 
@@ -114,13 +127,15 @@ public class MainPlugin implements Plugin<Project> {
 
     private JsMinifyTask setupJsMinifyTask(TaskContainer taskFactory) {
         JavaScriptExtension extension = getExtension().javascriptConfigure();
-        JsMinifyTask task = taskFactory.create("jsMinify", JsMinifyTask.class);
+        JsMinifyTask task = taskFactory.create(JS_MIN_TASK_NAME, JsMinifyTask.class);
 
         task.setJsFileDirectory(extension.getJsDir())
             .setOutputFileDirectory(extension.getOutputDir())
             .setMinifierType(extension.getMinifierType());
 
-        task.setGroup(PRD_GROUP);
+        task.setGroup(COMPILE_GROUP);
+        task.setDescription("JS to min file.");
+        task.getOutputs().upToDateWhen(t -> false); // always run setting
         return task;
     }
 }

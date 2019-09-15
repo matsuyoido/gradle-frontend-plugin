@@ -1,7 +1,7 @@
 package com.matsuyoido.plugin.frontend.task.js;
 
 import java.io.File;
-import java.util.Objects;
+// import java.util.Objects;
 
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.matsuyoido.plugin.frontend.task.MinifierType;
@@ -18,6 +18,7 @@ public class JsMinifyTask extends DefaultTask {
 
     @TaskAction
     public void compileJs(IncrementalTaskInputs inputs) {
+        jsOutputDirectory.mkdirs();
         minifier().execute(jsFileDirectory, jsOutputDirectory);
     }
 

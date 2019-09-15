@@ -19,16 +19,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class CanIUse {
 
-    protected Map<String, Browser> browsers;
+    protected List<Browser> browsers;
     protected List<SupportData> supports;
 
     public CanIUse(File dataFile) throws IOException {
-        setup(Files.readAllLines(dataFile.toPath()).stream().collect(Collectors.joining(System.lineSeparator())));
-        // setup(Files.readString(dataFile.toPath()));
+        this.setup(dataFile);
     }
+    protected CanIUse() {}
 
-    public Map<String, Browser> getBrowsers() {
-        return this.browsers;
+    public List<Browser> getBrowsers() {
+        return Collections.unmodifiableList(this.browsers);
     }
 
     public List<SupportData> getCssSupports() {
@@ -43,15 +43,18 @@ public class CanIUse {
                             .collect(Collectors.toList());
     }
 
-
+    protected void setup(File dataFile) throws IOException {
+        setup(Files.readAllLines(dataFile.toPath()).stream().collect(Collectors.joining(System.lineSeparator())));
+        // setup(Files.readString(dataFile.toPath()));
+    }
 
     private void setup(String jsonData) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-
         JsonNode caniuseNode = mapper.readTree(jsonData);
 
-        this.browsers = Collections.unmodifiableMap(convertBrowserMap(caniuseNode));
-        this.supports = Collections.unmodifiableList(convertData(caniuseNode, browsers));
+        Map<String, Browser> browsers = convertBrowserMap(caniuseNode);
+        this.supports = convertData(caniuseNode, browsers);
+        this.browsers = new ArrayList<>(browsers.values());
     }
 
     private Map<String, Browser> convertBrowserMap(JsonNode node) {
@@ -59,7 +62,7 @@ public class CanIUse {
         node.get("agents").fields().forEachRemaining(entry -> {
             Browser browser = new Browser();
             JsonNode agentRoot = entry.getValue();
-            browser.setKey(entry.getKey());
+            browser.setAgentName(entry.getKey());
             browser.setBrowser(agentRoot.get("browser").asText());
             browser.setAbbr(agentRoot.get("abbr").asText());
             browser.setPrefix(agentRoot.get("prefix").asText());
@@ -93,24 +96,68 @@ public class CanIUse {
             );
             List<SupportStatus> supports = new ArrayList<>();
             rootNode.get("stats").fields().forEachRemaining(statusEntry -> {
-                SupportStatus support = new SupportStatus();
-                support.setBrowser(statusEntry.getKey(), browsers.get(statusEntry.getKey()).getPrefix());
-                statusEntry.getValue().fields().forEachRemaining(supportEntry -> {
-                    support.addSupportVersion(
-                        supportEntry.getKey(), supportEntry.getValue().asText());
-                });
-                supports.add(support);
+                Browser browser = browsers.get(statusEntry.getKey());
+                if (isAddSupport(browser)) {
+                    SupportStatus support = new SupportStatus();
+                    support.setBrowser(browser.getAgent(), browser.getPrefix());
+                    statusEntry.getValue().fields().forEachRemaining(supportEntry -> {
+                        Version version = convertVersion(supportEntry.getKey());
+                        SupportLevel supportLevel = SupportLevel.of(supportEntry.getValue().asText());
+                        if (isAddSupportData(browser, version, supportLevel)) {
+                            support.addSupportVersion(version, supportLevel);
+                        }
+                    });
+                    if (!support.getSupportVersionMap().isEmpty()) {
+                        supports.add(support);   
+                    }
+                }
             });
 
-            SupportData data = new SupportData();
-            data.setKey(key);
-            data.setKeyword(keyword);
-            data.setDescription(description);
-            data.setTitle(title);
-            data.setCategories(categories);
-            data.setSupports(supports);
-            dataList.add(data);
+            if (!supports.isEmpty()) {
+                SupportData data = new SupportData();
+                data.setKey(key);
+                data.setKeyword(keyword);
+                data.setDescription(description);
+                data.setTitle(title);
+                data.setCategories(categories);
+                data.setSupports(supports);
+                dataList.add(data);
+            }
         });
         return dataList;
     }
+
+    private Version convertVersion(String version) {
+        if (version.contains("-")) {
+            String[] versions = version.split("-");
+            Version minVersion = new Version(versions[0]);
+            return minVersion;
+        } else {
+            return new Version(version);
+        }
+    }
+
+    /**
+     * custom support filter. default is all support.
+     *
+     * @param browser      {@link Browser}
+     * @return
+     */
+    protected boolean isAddSupport(Browser browser) {
+        return true;
+    }
+
+    /**
+     * custom support filter. default is all support.
+     *
+     * @param browser      {@link Browser}
+     * @param version  {@link Version}
+     * @param supportLevel {@link SupportLevel}
+     * @return
+     */
+    protected boolean isAddSupportData(Browser browser, Version version, SupportLevel supportLevel) {
+        return true;
+    }
+
+
 }

@@ -2,10 +2,8 @@ package com.matsuyoido.plugin.frontend.task.css;
 
 import java.io.File;
 import java.util.List;
-import java.util.function.Predicate;
 
 import com.matsuyoido.caniuse.SupportData;
-import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.plugin.frontend.task.Minifier;
 
 import org.gradle.api.DefaultTask;
@@ -18,10 +16,10 @@ public class CssMinifyTask extends DefaultTask {
     private File cssOutputDirectory;
     private boolean isDeleteBeforeCompileFile;
     private List<SupportData> supportData;
-    private Predicate<SupportStatus> supportFilter;
 
     @TaskAction
     public void minifyCss(IncrementalTaskInputs inputs) {
+        cssOutputDirectory.mkdirs();
         minifier().execute(cssFileDirectory, cssOutputDirectory);
     }
 
@@ -37,17 +35,16 @@ public class CssMinifyTask extends DefaultTask {
         this.isDeleteBeforeCompileFile = deleteDone;
         return this;
     }
-    public CssMinifyTask setPrefixer(List<SupportData> supportData, Predicate<SupportStatus> supportFilter) {
+    public CssMinifyTask setPrefixer(List<SupportData> supportData) {
         this.supportData = supportData;
-        this.supportFilter = supportFilter;
         return this;
     }
 
     public Minifier minifier() {
-        PhCssMinifyCompiler compiler = new PhCssMinifyCompiler(isDeleteBeforeCompileFile);
         if (this.supportData != null) {
-            compiler.setPrefixer(this.supportData, this.supportFilter);
+            return new PhCssMinifyCompiler(this.supportData, isDeleteBeforeCompileFile);
+        } else {
+            return new YuiCssMinifyCompiler(isDeleteBeforeCompileFile);
         }
-        return compiler;
     }
 }

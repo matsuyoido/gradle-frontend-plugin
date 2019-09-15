@@ -1,14 +1,12 @@
 package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Objects;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-
-import com.matsuyoido.caniuse.SupportLevel;
-import com.matsuyoido.caniuse.SupportStatus;
-import com.matsuyoido.model.Version;
+// import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 /**
  * PrefixerExtension
@@ -59,9 +57,21 @@ public class PrefixerExtension implements Serializable {
 
     // #region getter
     public File getCaniuseData() {
-        return this.caniuseDataFile != null ? this.caniuseDataFile :
-            new File(getClass().getResource("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")
-                               .toExternalForm());
+        if (this.caniuseDataFile != null) {
+            return this.caniuseDataFile;
+        } else {
+            try {
+                Path jsonFile = Files.createTempFile("plugin-", ".json");
+                try (InputStream in = getClass().getResourceAsStream("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")) {
+                    Files.copy(in, jsonFile, StandardCopyOption.REPLACE_EXISTING);
+                    File result = jsonFile.toFile();
+                    result.deleteOnExit();
+                    return result;
+                }
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         /*
         return Objects.requireNonNullElseGet(
             this.caniuseDataFile, () -> 
@@ -69,87 +79,27 @@ public class PrefixerExtension implements Serializable {
                                .toExternalForm()));
         */
     }
-    public Predicate<SupportStatus> getSupportFilter() {
-        return status -> 
-            status.getSupportVersionMap().entrySet()
-                    .stream()
-                    .filter(entry -> this.isAddPrefixerVersion(status.getBrowser(), entry))
-                    .anyMatch(this::isAddPrefixer)
-        ;
+    public String getIe() {
+        return this.ie;
+    }
+    public String getEdge() {
+        return this.edge;
+    }
+    public String getChrome() {
+        return this.chrome;
+    }
+    public String getFirefox() {
+        return this.firefox;
+    }
+    public String getSafari() {
+        return this.safari;
+    }
+    public String getIos() {
+        return this.ios;
+    }
+    public String getAndroid() {
+        return this.android;
     }
     //#endregion
 
-    private boolean isAddPrefixerVersion(String browser, Entry<String, SupportLevel> entry) {
-        boolean isBrowserSupport = false;
-        String version = null;
-        switch(browser) {
-            case "ie": 
-            isBrowserSupport = this.ie != null && !this.ie.trim().isEmpty(); //!this.ie.isBlank();
-            version = this.ie;
-            break;
-            case "edge":
-            isBrowserSupport = this.edge != null && !this.edge.trim().isEmpty();//!this.edge.isBlank();
-            version = this.edge;
-            break;
-            case "firefox":
-            isBrowserSupport = this.firefox != null && !this.firefox.trim().isEmpty();//!this.firefox.isBlank();
-            version = this.firefox;
-            break;
-            case "chrome":
-            isBrowserSupport = this.chrome != null && !this.chrome.trim().isEmpty();//!this.chrome.isBlank();
-            version = this.chrome;
-            break;
-            case "safari":
-            isBrowserSupport = this.safari != null && !this.safari.trim().isEmpty();//!this.safari.isBlank();
-            version = this.safari;
-            case "ios_saf":
-            isBrowserSupport = this.ios != null && !this.ios.trim().isEmpty();//!this.ios.isBlank();
-            version = this.ios;
-            break;
-            case "android":
-            case "and_ff":
-            case "and_chr":
-            isBrowserSupport = this.android != null && !this.android.trim().isEmpty();//!this.android.isBlank();
-            version = this.android;
-            break;
-            case "opera":
-            case "op_mini":
-            case "bb":
-            case "op_mob":
-            case "ie_mob":
-            case "and_uc":
-            case "samsung":
-            case "and_qq":
-            case "baidu":
-            case "kaios":
-            break;
-        }
-        return isBrowserSupport && isGreaterThanVersion(version, entry.getKey());
-    }
-
-    private boolean isGreaterThanVersion(String supportVersion, String compareVersion) {
-        if (supportVersion == null) {
-            return false;
-        } else if (supportVersion == "ALL") {
-            return true;
-        }
-
-        if (compareVersion.equals("TP") || compareVersion.equals("all")) {
-            return true;
-        } else if (compareVersion.contains("-")) {
-            Version version = new Version(supportVersion);
-            String[] versions = compareVersion.split("-");
-            Version minVersion = new Version(versions[0]);
-            return version.isNewerThan(minVersion);
-        } else {
-            return new Version(supportVersion).isNewerThan(new Version(compareVersion));
-        }
-    }
-
-    private boolean isAddPrefixer(Entry<String, SupportLevel> entry) {
-        SupportLevel level = entry.getValue();
-        boolean isAddPrefixLevel = SupportLevel.ENABLE_WITH_PREFIX == level
-                    || SupportLevel.PARTIAL_WITH_PREFIX == level || SupportLevel.YES_WITH_PREFIX == level;
-        return isAddPrefixLevel;
-    }
 }

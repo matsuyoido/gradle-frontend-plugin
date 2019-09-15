@@ -1,0 +1,38 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.matsuyoido:plugin:0.0.3"
+  }
+}
+
+apply plugin: "com.matsuyoido.frontend"
+
+frontend {
+    css {
+        sassDir = file("$projectDir/src/main/sass")
+        minifyEnable = true
+        originDeleted = false
+        cssDir = file("$projectDir/src/main/resources/static/css")
+        outDir = file("$projectDir/src/main/resources/static/css")
+
+        prefixerEnable = true
+        prefixer {
+            ie = "11"
+            edge = "44"
+            chrome = "76"
+            firefox = "70"
+            safari = "all"
+            ios = "all"
+            android = "all"
+        }
+    }
+    js {
+        jsDir = file("$projectDir/src/main/resources/static/js")
+        outDir = file("$projectDir/src/main/resources/static/js")
+        type = 'yahoo'
+    }
+}

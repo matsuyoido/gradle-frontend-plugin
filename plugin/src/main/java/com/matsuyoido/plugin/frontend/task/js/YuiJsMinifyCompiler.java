@@ -35,6 +35,8 @@ public class YuiJsMinifyCompiler extends Minifier {
             try (Reader reader = new FileReader(filePath.toFile()); Writer writer = new FileWriter(tempFile)) {
                 JavaScriptCompressor compressor = new JavaScriptCompressor(reader, new ErrorHandle());
                 compressor.compress(writer, -1, munge, verbose, preserveAllSemiColons, disableOptimizations); // no break line
+            } catch (IndexOutOfBoundsException e) {
+                // file is empty
             }
             return Files.readAllLines(tempFile.toPath()).stream().collect(Collectors.joining()); // Files.readString(tempFile.toPath());
         } catch (IOException e) {
