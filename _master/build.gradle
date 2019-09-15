@@ -1,7 +1,8 @@
 buildscript {
     ext {
         gradleVersion = '5.5.1'
-        jdkVersion = JavaVersion.VERSION_1_8 //JavaVersion.VERSION_11
+        jdkVersion = JavaVersion.VERSION_1_8
+        // jdkVersion = JavaVersion.VERSION_11
         assertJVersion = '3.11.1'
         defaultEncoding = 'UTF-8'
     }

@@ -1,5 +1,7 @@
 # gradle-frontend-plugin
 
+https://plugins.gradle.org/plugin/com.matsuyoido.frontend
+
 ## Feature
 
 1. sass compile by [jsass](https://gitlab.com/jsass/jsass)
@@ -9,6 +11,8 @@
 
 
 ## Tasks
+
+group: Compile tasks
 
 1. `$ gradlew sassCompile`
 1. `$ gradlew cssMinify`
@@ -21,8 +25,10 @@ frontend {
     css {
         sassDir = file("$projectDir/src/main/sass")
         cssDir = file("$projectDir/src/main/resources/static/css")
-        minifyEnable = true // If you compile and minify, set true.
-        originDeleted = true // If yout want to delete precompile css file, set true.
+        // If you compile and minify, set true.
+        minifyEnable = false
+        // If yout want to delete precompile css file, set true.
+        originDeleted = false
         outDir = file("$projectDir/src/main/resources/static/css")
     }
 }
@@ -34,7 +40,8 @@ frontend {
 frontend {
     css {
         cssDir = file("$projectDir/src/main/resources/static/css")
-        originDeleted = true // If yout want to delete precompile css file. set true
+        // If yout want to delete precompile css file. set true
+        originDeleted = false
         outDir = file("$projectDir/src/main/resources/static/css")
     }
 }
@@ -47,10 +54,12 @@ frontend {
     css {
         cssDir = file("$projectDir/src/main/resources/static/css")
         outDir = file("$projectDir/src/main/resources/static/css")
-        prefixerEnable = true // If you want to add prefixer, set true.
+        // If you want to add prefixer, set true.
+        prefixerEnable = false
         prefixer {
             // specify data.json from https://github.com/Fyrd/caniuse/blob/master/data.json
-            caniuseData = file("$projectDir/caniuse/data.json") // Iif don't set and enable=true, data.json is used from caniuse-db-1.0.30000748
+            // If don't set and enable=true, data.json is used from caniuse-db-1.0.30000748
+            caniuseData = file("$projectDir/caniuse/data.json")
             // If set version string(ex. "76" or "all"), specified greater version check css supports & add prefixer.
             ie = ""
             edge = ""
@@ -71,15 +80,16 @@ frontend {
     js {
         jsDir = file("$projectDir/src/main/resources/static/js")
         outDir = file("$projectDir/src/main/resources/static/js")
-        type = 'yahoo' // If you want to specify minify compiler. 'google' (Default) or 'yahoo'
+        // If you want to specify minify compiler. 'google' (Default) or 'yahoo'
+        type = 'google'
     }
 }
 ```
 
 
-## Bug
+## Bug or Request
 
-If you find bug when use, please create `New Issue` in Japanese or English.
+please create `New Issue` in Japanese or English.
 (Japanese is better...)
 
 ## TODO memo
