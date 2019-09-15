@@ -5,7 +5,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.matsuyoido:plugin:0.0.3"
+    classpath "gradle.plugin.com.matsuyoido:plugin:0.0.4"
   }
 }
 

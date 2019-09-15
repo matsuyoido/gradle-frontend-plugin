@@ -82,7 +82,7 @@ project(':plugin') {
         implementation 'org.webjars.npm:caniuse-db:1.0.30000748'
     }
 
-    version = '0.0.3'
+    version = '0.0.4'
     group = 'com.matsuyoido'
     jar.baseName = 'matsuyoido-frontend-gradle-plugin'
 

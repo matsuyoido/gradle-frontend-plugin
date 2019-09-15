@@ -10,7 +10,7 @@
         {
             "label": "plugin publish",
             "type": "shell",
-            "command": "cd _master; ./gradlew.bat :plugin:publishPlugins --stacktrace"
+            "command": "cd _master; ./gradlew.bat clean :plugin:publishPlugins --stacktrace"
         }
     ]
 }
