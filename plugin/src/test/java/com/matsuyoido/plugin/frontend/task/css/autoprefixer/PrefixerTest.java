@@ -72,7 +72,7 @@ public class PrefixerTest {
             "overflow: hidden;",
         "}"
         );
-    
+
     @Test
     public void addPrefix_mediaScreen() {
         String result = prefixer.addPrefix(this.mediaCss);
@@ -97,7 +97,7 @@ public class PrefixerTest {
 
         assertThat(result)
                 .containsOnlyOnce("@supports")
-                .containsOnlyOnce("(display:flex) or (display:-ms-flex) or (display:-moz-flex) or (display:-webkit-flex) or (display:-o-flex) or (display:flex)")
+                .containsOnlyOnce("(display:flex) or (display:-ms-flex) or (display:-moz-flex) or (display:-webkit-flex) or (display:flex)")
         ;
     }
 

@@ -52,6 +52,19 @@ public class Version implements Comparable<Version> {
         }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Version) {
+            Version val = (Version) obj;
+            return this.version.equals(val.version);
+        } else {
+            return false;
+        }
+    }
+
     public boolean isNewerThan(Version version) {
         return 0 <= this.compareTo(version);
     }

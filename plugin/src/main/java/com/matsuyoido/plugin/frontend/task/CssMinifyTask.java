@@ -1,10 +1,13 @@
-package com.matsuyoido.plugin.frontend.task.css;
+package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
 import java.util.List;
 
 import com.matsuyoido.caniuse.SupportData;
+import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.frontend.task.Minifier;
+import com.matsuyoido.plugin.frontend.task.css.PhCssMinifyCompiler;
+import com.matsuyoido.plugin.frontend.task.css.YuiCssMinifyCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -15,6 +18,7 @@ public class CssMinifyTask extends DefaultTask {
     private File cssFileDirectory;
     private File cssOutputDirectory;
     private boolean isDeleteBeforeCompileFile;
+    private LineEnd lineEnd;
     private List<SupportData> supportData;
 
     @TaskAction
@@ -39,10 +43,14 @@ public class CssMinifyTask extends DefaultTask {
         this.supportData = supportData;
         return this;
     }
+    public CssMinifyTask setLineEnd(LineEnd lineEnd) {
+        this.lineEnd = lineEnd;
+        return this;
+    }
 
     public Minifier minifier() {
         if (this.supportData != null) {
-            return new PhCssMinifyCompiler(this.supportData, isDeleteBeforeCompileFile);
+            return new PhCssMinifyCompiler(this.supportData, isDeleteBeforeCompileFile, lineEnd);
         } else {
             return new YuiCssMinifyCompiler(isDeleteBeforeCompileFile);
         }

@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +30,9 @@ import com.helger.css.decl.ICSSTopLevelRule;
 import com.helger.css.reader.CSSReader;
 import com.helger.css.writer.CSSWriterSettings;
 import com.matsuyoido.caniuse.SupportData;
+import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.SupportStatus;
+import com.matsuyoido.caniuse.VersionPrefixer;
 
 /**
  * Prefixer
@@ -39,18 +43,17 @@ public class Prefixer {
     // key: property
     private Map<String, CssSupport> supportMap = new HashMap<>();
 
-    public Prefixer(List<SupportData> supportData) {
+    public Prefixer(ICSSWriterSettings settings, List<SupportData> supportData) {
         supportData.forEach(data -> {
             setupCssPrefixer(data.getKey(), data.getSupports());
         });
-        this.writeSetting = CSSWriterSettings.DEFAULT_SETTINGS;
-    }
-
-    public Prefixer(CSSWriterSettings settings, List<SupportData> supportData) {
-        this(supportData);
         this.writeSetting = settings;
     }
-    
+
+    public Prefixer(List<SupportData> supportData) {
+        this(CSSWriterSettings.DEFAULT_SETTINGS, supportData);
+    }
+
     public String addPrefix(File file) {
         return addPrefix(CSSReader.readFromFile(file, StandardCharsets.UTF_8, ECSSVersion.CSS30));
     }
@@ -115,7 +118,7 @@ public class Prefixer {
     private void appendNewLineIfNotMinify(StringBuilder builder, String value) {
         builder.append(value);
         if (!this.writeSetting.isOptimizedOutput()) {
-            builder.append(System.lineSeparator());
+            builder.append(this.writeSetting.getNewLineMode().getText());
         }
     }
 
@@ -145,9 +148,13 @@ public class Prefixer {
             if (!support.anySupport.isEmpty()) {
                 prefixerDeclaration.put("", new CSSDeclaration(cssProperty, declaration.getExpression()));
                 support.anySupport.stream()
-                        .forEach(status -> 
-                            prefixerDeclaration.put(status.getPrefixer(),
-                                new CSSDeclaration(String.format("-%s-%s", status.getPrefixer(), cssProperty),
+                        .flatMap(status -> status.getSupportVersionMap().entrySet().stream()
+                            .map(this::extractPrefixer)
+                            .filter(Objects::nonNull))
+                        .distinct()
+                        .forEach(prefixer -> 
+                            prefixerDeclaration.put(prefixer,
+                                new CSSDeclaration(String.format("-%s-%s", prefixer, cssProperty),
                                         declaration.getExpression()))
                             
                         );
@@ -157,11 +164,15 @@ public class Prefixer {
                 support.specificSupport.entrySet().stream().filter(es -> cssValue.contains(es.getKey())).findFirst()
                         .ifPresent(es -> {
                             es.getValue().stream()
-                                .forEach(status -> {
+                                .flatMap(status -> status.getSupportVersionMap().entrySet().stream()
+                                    .map(this::extractPrefixer)
+                                    .filter(Objects::nonNull))
+                                .distinct()
+                                .forEach(prefixer -> {
                                     CSSExpression expression = new CSSExpression();
                                         expression.addMember(new CSSExpressionMemberTermSimple(
-                                                String.format("-%s-%s", status.getPrefixer(), cssValue)));
-                                        prefixerDeclaration.put(status.getPrefixer(),
+                                                String.format("-%s-%s", prefixer, cssValue)));
+                                        prefixerDeclaration.put(prefixer,
                                                 new CSSDeclaration(cssProperty, expression));
                                 });
                         });
@@ -190,6 +201,10 @@ public class Prefixer {
         }
         return val;
     };
+    private String extractPrefixer(Entry<VersionPrefixer, SupportLevel> entry) {
+        return (entry.getValue().name().endsWith("_WITH_PREFIX")) ?
+            entry.getKey().getPrefixer() : null;
+    }
 
     //#region initialize setup
 

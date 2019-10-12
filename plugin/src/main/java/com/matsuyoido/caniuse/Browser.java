@@ -14,10 +14,9 @@ public class Browser {
     private String agentName;
     private String browser;
     private String abbr;
-    private String prefix;
     private String type;
     private Map<String, Double> usageGlobal;
-    private List<String> versions;
+    private List<VersionPrefixer> versionPrefixer;
     
     //#region getter
     public String getAgent() {
@@ -29,17 +28,17 @@ public class Browser {
     public String getAbbr() {
         return this.abbr;
     }
-    public String getPrefix() {
-        return this.prefix;
-    }
     public String getType() {
         return this.type;
     }
     public Map<String, Double> getUsageGlobal() {
         return this.usageGlobal == null ? Collections.emptyMap() : this.usageGlobal;
     }
-    public List<String> getVersions() {
-        return this.versions == null ? Collections.emptyList() : this.versions;
+
+    protected VersionPrefixer getPrefixer(String version) {
+        return this.versionPrefixer.stream()
+                .filter(prefixer -> prefixer.version.equals(version))
+                .findFirst().get();
     }
     //#endregion
 
@@ -53,9 +52,6 @@ public class Browser {
     public void setAbbr(String abbr) {
         this.abbr = abbr;
     }
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
     public void setType(String type) {
         this.type = type;
     }
@@ -65,11 +61,11 @@ public class Browser {
         }
         this.usageGlobal.put(key, value);
     }
-    public void addVersions(String version) {
-        if (this.versions == null) {
-            this.versions = new ArrayList<>();
+    public void addVersions(String version, String prefixer) {
+        if (this.versionPrefixer == null) {
+            this.versionPrefixer = new ArrayList<>();
         }
-        this.versions.add(version);
+        this.versionPrefixer.add(new VersionPrefixer(version, prefixer));
     }
     //#endregion
 

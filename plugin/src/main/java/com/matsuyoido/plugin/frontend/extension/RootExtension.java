@@ -2,6 +2,9 @@ package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.Serializable;
 import java.util.Objects;
+
+import com.matsuyoido.plugin.LineEnd;
+
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Nested;
@@ -12,6 +15,7 @@ import groovy.lang.Closure;
  * ex.
  * <pre>
  * ___ {
+ *   lineEnding = ""
  *   css {
  *     CssExtension.class
  *   }
@@ -25,6 +29,7 @@ public class RootExtension implements Serializable {
     private static final long serialVersionUID = -7796482663082939967L;
     private final Project project;
 
+    private LineEnd lineEnding;
     @Nested
     private final CssExtension css;
     @Nested
@@ -45,6 +50,26 @@ public class RootExtension implements Serializable {
         Objects.requireNonNull(closure).execute(this.js);
     }
 
+    public void setLineEnding(String value) {
+        if (value == null) {
+            this.lineEnding = LineEnd.PLATFORM;
+        } else {
+            switch (value.toLowerCase()) {
+                case "windows":
+                    this.lineEnding = LineEnd.WINDOWS;
+                    break;
+                case "linux":
+                    this.lineEnding = LineEnd.LINUX;
+                    break;
+                case "mac":
+                    this.lineEnding = LineEnd.MAC;
+                    break;
+                default:
+                    this.lineEnding = LineEnd.PLATFORM;
+                    break;
+            }
+        }
+    }
 
     public CssExtension cssConfigure() {
         return this.css;
@@ -52,5 +77,9 @@ public class RootExtension implements Serializable {
 
     public JavaScriptExtension javascriptConfigure() {
         return this.js;
+    }
+
+    public LineEnd getLineEnding() {
+        return (this.lineEnding == null) ? LineEnd.PLATFORM : this.lineEnding;
     }
 }

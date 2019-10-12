@@ -1,10 +1,12 @@
-package com.matsuyoido.plugin.frontend.task.js;
+package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
 // import java.util.Objects;
 
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.matsuyoido.plugin.frontend.task.MinifierType;
+import com.matsuyoido.plugin.frontend.task.js.GoogleClosureMinifyCompiler;
+import com.matsuyoido.plugin.frontend.task.js.YuiJsMinifyCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -38,6 +40,9 @@ public class JsMinifyTask extends DefaultTask {
 
     public Minifier minifier() {
         boolean isDeleteBeforeCompileFile = false;
+        if (minifierType == null) {
+            return new GoogleClosureMinifyCompiler(isDeleteBeforeCompileFile);
+        }
         switch (minifierType) {
             case YUI:
                 return new YuiJsMinifyCompiler(isDeleteBeforeCompileFile);

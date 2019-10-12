@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.matsuyoido.plugin.LineEnd;
+
 import org.gradle.api.GradleException;
 
 import io.bit3.jsass.CompilationException;
@@ -17,10 +19,10 @@ public class SassCompiler extends com.matsuyoido.plugin.frontend.task.Compiler {
     private Compiler compiler;
     private Options option;
 
-    public SassCompiler() {
+    public SassCompiler(LineEnd lineEnd) {
         super(".css", "glob:[!_]*.scss");
         this.compiler = new Compiler();
-        this.option = setupOption();
+        this.option = setupOption(lineEnd);
     }
 
 
@@ -35,13 +37,14 @@ public class SassCompiler extends com.matsuyoido.plugin.frontend.task.Compiler {
         }
     }
 
-    private Options setupOption() {
+    private Options setupOption(LineEnd lineEnd) {
         Options option = new Options();
         option.setOutputStyle(OutputStyle.EXPANDED);
         // sourcemap not generate
         option.setSourceMapContents(false);
         option.setSourceMapEmbed(false);
         option.setOmitSourceMapUrl(true);
+        option.setLinefeed(lineEnd.get());
         return option;
     }
 
