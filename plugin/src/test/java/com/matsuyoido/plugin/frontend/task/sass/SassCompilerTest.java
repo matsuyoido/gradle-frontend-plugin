@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.PathUtil;
 
 import org.junit.Rule;
@@ -24,7 +25,7 @@ public class SassCompilerTest {
 
     private static final String SASS_FILE_DIR = PathUtil.classpathResourcePath("sassCompile");
     private static final int SASS_FILE_COUNT = 2;
-    private SassCompiler compiler = new SassCompiler();
+    private SassCompiler compiler = new SassCompiler(LineEnd.WINDOWS);
 
     @Test
     public void compile() {

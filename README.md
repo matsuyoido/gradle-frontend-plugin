@@ -22,6 +22,8 @@ group: Compile tasks
 
 ```gradle
 frontend {
+    // If you want to set encoding. 'windows' or 'linux' or 'mac'
+    lineEnding = 'linux'
     css {
         sassDir = file("$projectDir/src/main/sass")
         cssDir = file("$projectDir/src/main/resources/static/css")
@@ -81,6 +83,37 @@ frontend {
         jsDir = file("$projectDir/src/main/resources/static/js")
         outDir = file("$projectDir/src/main/resources/static/js")
         // If you want to specify minify compiler. 'google' (Default) or 'yahoo'
+        type = 'google'
+    }
+}
+```
+
+### All Extension
+
+```gradle
+frontend {
+    lineEnding = 'linux'
+    css {
+        sassDir = file("$projectDir/your/scss/directory")
+        cssDir = file("$projectDir/your/css/directory")
+        outDir = file("$projectDir/your/css/output/directory")
+        minifyEnable = true
+        prefixerEnable = true
+        originDeleted = false
+        prefixer {
+            caniuseData = file("$rootDir/your/fit/version/data.json")
+            ie = "all"
+            edge = "42"
+            chrome = ""
+            firefox = ""
+            safari = ""
+            ios = ""
+            android = ""
+        }
+    }
+    js {
+        jsDir = file("$projectDir/your/javascript/directory")
+        outDir = file("$projectDir/your/javascript/output/directory")
         type = 'google'
     }
 }

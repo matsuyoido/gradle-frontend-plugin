@@ -12,6 +12,7 @@ import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.SupportStatus;
 import com.matsuyoido.caniuse.VersionPrefixer;
+import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.PathUtil;
 
 import org.junit.Rule;
@@ -33,7 +34,7 @@ public class PhCssMinifyCompilerTest {
     public void compile() {
         Path cssFilePath = new File(CSS_FILE_DIR, "test.css").toPath();//Path.of(CSS_FILE_DIR, "test.css");
         
-        String result = new PhCssMinifyCompiler(false).compile(cssFilePath);
+        String result = new PhCssMinifyCompiler(false, LineEnd.PLATFORM).compile(cssFilePath);
 
         assertThat(result).isEqualTo("@charset \"UTF-8\";p{font-size:1px}a{display:flex}");
     }
@@ -44,7 +45,7 @@ public class PhCssMinifyCompilerTest {
         List<SupportData> supports = new ArrayList<>();
         supports.add(flexSupport());
         
-        String result = new PhCssMinifyCompiler(supports, false).compile(cssFilePath);
+        String result = new PhCssMinifyCompiler(supports, false, LineEnd.PLATFORM).compile(cssFilePath);
         assertThat(result).isEqualTo("@charset \"UTF-8\";p{font-size:1px}a{display:flex;display:-webkit-flex}");
     }
 
@@ -53,7 +54,7 @@ public class PhCssMinifyCompilerTest {
         String cssDirectory = CSS_FILE_DIR;
         File outputDirectory = tempFolder.newFolder("compiledFolder");
         
-        new PhCssMinifyCompiler(false).execute(new File(cssDirectory), outputDirectory);
+        new PhCssMinifyCompiler(false, LineEnd.PLATFORM).execute(new File(cssDirectory), outputDirectory);
 
         assertThat(outputDirectory.listFiles()).allSatisfy(file -> {
             if (file.getName().equals("nest")) {

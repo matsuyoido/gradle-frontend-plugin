@@ -6,11 +6,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.helger.commons.system.ENewLineMode;
 import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.reader.CSSReader;
 import com.helger.css.writer.CSSWriterSettings;
 import com.matsuyoido.caniuse.SupportData;
+import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.frontend.task.Minifier;
 import com.matsuyoido.plugin.frontend.task.css.autoprefixer.Prefixer;
 
@@ -26,12 +28,13 @@ public class PhCssMinifyCompiler extends Minifier {
     private boolean isAddPrefixer;
     private Prefixer prefixer;
 
-    public PhCssMinifyCompiler(boolean isDeleteBeforeCompileFile) {
+    public PhCssMinifyCompiler(boolean isDeleteBeforeCompileFile, LineEnd lineEnd) {
         super("css", isDeleteBeforeCompileFile);
+        this.settings.setNewLineMode(ENewLineMode.getFromTextOrNull(lineEnd.get()));
     }
 
-    public PhCssMinifyCompiler(List<SupportData> supportData, boolean isDeleteBeforeCompileFile) {
-        this(isDeleteBeforeCompileFile);
+    public PhCssMinifyCompiler(List<SupportData> supportData, boolean isDeleteBeforeCompileFile, LineEnd lineEnd) {
+        this(isDeleteBeforeCompileFile, lineEnd);
         this.isAddPrefixer = true;
         this.prefixer = new Prefixer(settings, supportData);
     }

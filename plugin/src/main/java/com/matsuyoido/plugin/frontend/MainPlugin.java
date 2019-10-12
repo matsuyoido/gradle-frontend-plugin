@@ -27,8 +27,6 @@ public class MainPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         this.extension = project.getExtensions().create("frontend", RootExtension.class, project);
-// https://github.com/andriipanasiuk/family-gradle-plugin/blob/master/plugin/src/main/groovy/com/andriipanasiuk/family/plugin/FamilyExtension.groovy
-
         project.afterEvaluate(this::setupTasks);
     }
 
@@ -68,7 +66,8 @@ public class MainPlugin implements Plugin<Project> {
         SassCompileTask task = taskFactory.create(SASS_TASK_NAME, SassCompileTask.class);
 
         task.setSassFileDirectory(extension.getSassDir())
-            .setOutputFileDirectory(extension.getCssDir());
+            .setOutputFileDirectory(extension.getCssDir())
+            .setLineEnd(this.extension.getLineEnding());
 
         if (minifyTask != null) {
             task.finalizedBy(minifyTask);
@@ -109,7 +108,8 @@ public class MainPlugin implements Plugin<Project> {
 
         task.setCssFileDirectory(extension.getCssDir())
             .setOutputFileDirectory(extension.getOutDir())
-            .setDeleteBeforeCompileFile(extension.isOriginFileDelete());
+            .setDeleteBeforeCompileFile(extension.isOriginFileDelete())
+            .setLineEnd(this.extension.getLineEnding());
 
         task.setGroup(COMPILE_GROUP);
         task.setDescription("CSS to min file.");

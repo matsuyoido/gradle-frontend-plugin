@@ -119,7 +119,7 @@ public class Prefixer {
     private void appendNewLineIfNotMinify(StringBuilder builder, String value) {
         builder.append(value);
         if (!this.writeSetting.isOptimizedOutput()) {
-            builder.append(System.lineSeparator());
+            builder.append(this.writeSetting.getNewLineMode().getText());
         }
     }
 
