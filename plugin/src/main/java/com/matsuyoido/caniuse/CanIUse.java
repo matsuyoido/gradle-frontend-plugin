@@ -62,18 +62,27 @@ public class CanIUse {
         node.get("agents").fields().forEachRemaining(entry -> {
             Browser browser = new Browser();
             JsonNode agentRoot = entry.getValue();
+            String prefixer = agentRoot.get("prefix").asText();
             browser.setAgentName(entry.getKey());
             browser.setBrowser(agentRoot.get("browser").asText());
             browser.setAbbr(agentRoot.get("abbr").asText());
-            browser.setPrefix(agentRoot.get("prefix").asText());
             browser.setType(agentRoot.get("type").asText());
             agentRoot.get("usage_global").fields().forEachRemaining(usageEntry -> 
                 browser.addUsageGlobal(usageEntry.getKey(),
                     usageEntry.getValue().asDouble())
             );
+            List<String> addedPrefixer = new ArrayList<>();
+            JsonNode specialPrefix = agentRoot.get("prefix_exceptions");
+            if (specialPrefix != null) {
+                specialPrefix.fields().forEachRemaining(prefixEntry -> {
+                    String version = prefixEntry.getKey();
+                    browser.addVersions(version, prefixEntry.getValue().asText());
+                    addedPrefixer.add(version);
+                });
+            }
             agentRoot.get("versions").elements().forEachRemaining(versionValue -> {
-                if (!versionValue.isNull()) {
-                    browser.addVersions(versionValue.asText());
+                if (!versionValue.isNull() && !addedPrefixer.contains(versionValue.asText())) {
+                    browser.addVersions(versionValue.asText(), prefixer);
                 }
             });
             browserMap.put(entry.getKey(), browser);
@@ -98,13 +107,12 @@ public class CanIUse {
             rootNode.get("stats").fields().forEachRemaining(statusEntry -> {
                 Browser browser = browsers.get(statusEntry.getKey());
                 if (isAddSupport(browser)) {
-                    SupportStatus support = new SupportStatus();
-                    support.setBrowser(browser.getAgent(), browser.getPrefix());
+                    SupportStatus support = new SupportStatus(browser.getAgent());
                     statusEntry.getValue().fields().forEachRemaining(supportEntry -> {
                         Version version = convertVersion(supportEntry.getKey());
                         SupportLevel supportLevel = SupportLevel.of(supportEntry.getValue().asText());
                         if (isAddSupportData(browser, version, supportLevel)) {
-                            support.addSupportVersion(version, supportLevel);
+                            support.addSupportVersion(browser.getPrefixer(supportEntry.getKey()), supportLevel);
                         }
                     });
                     if (!support.getSupportVersionMap().isEmpty()) {

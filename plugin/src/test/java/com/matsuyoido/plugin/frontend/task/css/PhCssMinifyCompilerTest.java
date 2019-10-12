@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.matsuyoido.caniuse.SupportData;
+import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.SupportStatus;
+import com.matsuyoido.caniuse.VersionPrefixer;
 import com.matsuyoido.plugin.PathUtil;
 
 import org.junit.Rule;
@@ -72,8 +74,8 @@ public class PhCssMinifyCompilerTest {
 
 
     private SupportData flexSupport() {
-        SupportStatus chromeStatus = new SupportStatus();
-        chromeStatus.setBrowser("chrome", "webkit");
+        SupportStatus chromeStatus = new SupportStatus("chrome");
+        chromeStatus.addSupportVersion(new VersionPrefixer("10", "webkit"), SupportLevel.ENABLE_WITH_PREFIX);
 
         List<SupportStatus> supports = new ArrayList<>();
         supports.add(chromeStatus);
