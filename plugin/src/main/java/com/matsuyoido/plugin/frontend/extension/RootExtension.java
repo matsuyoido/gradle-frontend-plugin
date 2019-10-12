@@ -15,6 +15,7 @@ import groovy.lang.Closure;
  * ex.
  * <pre>
  * ___ {
+ *   lineEnding = ""
  *   css {
  *     CssExtension.class
  *   }

@@ -8,9 +8,9 @@ import java.io.IOException;
 
 import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.plugin.frontend.extension.CssExtension;
-import com.matsuyoido.plugin.frontend.task.css.CssMinifyTask;
-import com.matsuyoido.plugin.frontend.task.js.JsMinifyTask;
-import com.matsuyoido.plugin.frontend.task.sass.SassCompileTask;
+import com.matsuyoido.plugin.frontend.task.CssMinifyTask;
+import com.matsuyoido.plugin.frontend.task.JsMinifyTask;
+import com.matsuyoido.plugin.frontend.task.SassCompileTask;
 
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;

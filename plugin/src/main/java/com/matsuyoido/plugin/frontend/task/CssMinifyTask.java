@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.task.css;
+package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.frontend.task.Minifier;
+import com.matsuyoido.plugin.frontend.task.css.PhCssMinifyCompiler;
+import com.matsuyoido.plugin.frontend.task.css.YuiCssMinifyCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;

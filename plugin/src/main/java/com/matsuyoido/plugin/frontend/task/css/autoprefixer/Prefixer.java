@@ -43,18 +43,17 @@ public class Prefixer {
     // key: property
     private Map<String, CssSupport> supportMap = new HashMap<>();
 
-    public Prefixer(List<SupportData> supportData) {
+    public Prefixer(ICSSWriterSettings settings, List<SupportData> supportData) {
         supportData.forEach(data -> {
             setupCssPrefixer(data.getKey(), data.getSupports());
         });
-        this.writeSetting = CSSWriterSettings.DEFAULT_SETTINGS;
-    }
-
-    public Prefixer(CSSWriterSettings settings, List<SupportData> supportData) {
-        this(supportData);
         this.writeSetting = settings;
     }
-    
+
+    public Prefixer(List<SupportData> supportData) {
+        this(CSSWriterSettings.DEFAULT_SETTINGS, supportData);
+    }
+
     public String addPrefix(File file) {
         return addPrefix(CSSReader.readFromFile(file, StandardCharsets.UTF_8, ECSSVersion.CSS30));
     }

@@ -1,8 +1,9 @@
-package com.matsuyoido.plugin.frontend.task.sass;
+package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
 
 import com.matsuyoido.plugin.LineEnd;
+import com.matsuyoido.plugin.frontend.task.sass.SassCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
