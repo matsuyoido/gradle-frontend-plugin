@@ -1,13 +1,15 @@
 package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.plugin.LineEnd;
+import com.matsuyoido.plugin.frontend.css.CssMinifyCompiler;
+import com.matsuyoido.plugin.frontend.css.MinifyType;
+import com.matsuyoido.plugin.frontend.css.PrefixCompiler;
 import com.matsuyoido.plugin.frontend.task.Minifier;
-import com.matsuyoido.plugin.frontend.task.css.PhCssMinifyCompiler;
-import com.matsuyoido.plugin.frontend.task.css.YuiCssMinifyCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -24,7 +26,20 @@ public class CssMinifyTask extends DefaultTask {
     @TaskAction
     public void minifyCss(IncrementalTaskInputs inputs) {
         cssOutputDirectory.mkdirs();
-        minifier().execute(cssFileDirectory, cssOutputDirectory);
+        MinifyType type = (this.supportData == null) ? MinifyType.YUI : MinifyType.SIMPLE;
+        PrefixCompiler prefixer = (this.supportData == null) ? null : new PrefixCompiler(supportData);
+
+        CssMinifyCompiler compiler = new CssMinifyCompiler(lineEnd, type);
+        new Minifier("css", isDeleteBeforeCompileFile){
+            @Override
+            protected String compile(Path filePath) {
+                if (prefixer == null) {
+                    return compiler.compile(filePath.toFile());
+                } else {
+                    return compiler.compile(prefixer.addPrefix(filePath.toFile()));
+                }
+            }
+        }.execute(cssFileDirectory, cssOutputDirectory);
     }
 
     public CssMinifyTask setCssFileDirectory(File directory) {
@@ -48,11 +63,4 @@ public class CssMinifyTask extends DefaultTask {
         return this;
     }
 
-    public Minifier minifier() {
-        if (this.supportData != null) {
-            return new PhCssMinifyCompiler(this.supportData, isDeleteBeforeCompileFile, lineEnd);
-        } else {
-            return new YuiCssMinifyCompiler(isDeleteBeforeCompileFile);
-        }
-    }
 }

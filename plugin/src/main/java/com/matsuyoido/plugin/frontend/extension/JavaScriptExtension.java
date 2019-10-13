@@ -2,7 +2,6 @@ package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
 
-import com.matsuyoido.plugin.frontend.task.MinifierType;
 
 /**
  * ex.

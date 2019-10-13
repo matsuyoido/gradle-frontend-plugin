@@ -1,9 +1,10 @@
 package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import com.matsuyoido.plugin.LineEnd;
-import com.matsuyoido.plugin.frontend.task.sass.SassCompiler;
+import com.matsuyoido.plugin.frontend.css.SassCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -16,7 +17,13 @@ public class SassCompileTask extends DefaultTask {
 
     @TaskAction
     public void compileSass(IncrementalTaskInputs inputs) {
-        compiler().execute(sassFileDirectory, cssOutputDirectory);
+        SassCompiler compiler = new SassCompiler(lineEnd);
+        new Compiler("css", "glob:[!_]*.scss"){
+            @Override
+            protected String compile(Path filePath) {
+                return compiler.compile(filePath.toFile());
+            }
+        }.execute(sassFileDirectory, cssOutputDirectory);
     }
 
     public SassCompileTask setSassFileDirectory(File directory) {
@@ -30,10 +37,6 @@ public class SassCompileTask extends DefaultTask {
     public SassCompileTask setLineEnd(LineEnd lineEnd) {
         this.lineEnd = lineEnd;
         return this;
-    }
-
-    public SassCompiler compiler() {
-        return new SassCompiler(lineEnd);
     }
 
 }

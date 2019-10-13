@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.task.css.autoprefixer;
+package com.matsuyoido.plugin.frontend.css;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -37,30 +37,41 @@ import com.matsuyoido.caniuse.VersionPrefixer;
 /**
  * Prefixer
  */
-public class Prefixer {
+public class PrefixCompiler {
 
     private ICSSWriterSettings writeSetting;
     // key: property
     private Map<String, CssSupport> supportMap = new HashMap<>();
 
-    public Prefixer(ICSSWriterSettings settings, List<SupportData> supportData) {
+    public PrefixCompiler(ICSSWriterSettings settings, List<SupportData> supportData) {
         supportData.forEach(data -> {
             setupCssPrefixer(data.getKey(), data.getSupports());
         });
         this.writeSetting = settings;
     }
 
-    public Prefixer(List<SupportData> supportData) {
+    public PrefixCompiler(List<SupportData> supportData) {
         this(CSSWriterSettings.DEFAULT_SETTINGS, supportData);
     }
 
+    /**
+     * 
+     * @param file CSS File
+     * @return Added prefixer css
+     */
     public String addPrefix(File file) {
         return addPrefix(CSSReader.readFromFile(file, StandardCharsets.UTF_8, ECSSVersion.CSS30));
     }
 
+    /**
+     * 
+     * @param cssText CSS
+     * @return Added prefixer css
+     */
     public String addPrefix(String cssText) {
         return addPrefix(CSSReader.readFromString(cssText, StandardCharsets.UTF_8, ECSSVersion.CSS30));
     }
+
 
 	private String addPrefix(CascadingStyleSheet css) {
         List<ICSSTopLevelRule> mainCssRule = new ArrayList<>();

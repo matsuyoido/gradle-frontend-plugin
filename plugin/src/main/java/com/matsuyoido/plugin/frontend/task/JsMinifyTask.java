@@ -1,12 +1,12 @@
 package com.matsuyoido.plugin.frontend.task;
 
 import java.io.File;
-// import java.util.Objects;
+import java.nio.file.Path;
 
+import com.matsuyoido.plugin.frontend.extension.MinifierType;
+import com.matsuyoido.plugin.frontend.js.JsMinifyCompiler;
+import com.matsuyoido.plugin.frontend.js.MinifyType;
 import com.matsuyoido.plugin.frontend.task.Minifier;
-import com.matsuyoido.plugin.frontend.task.MinifierType;
-import com.matsuyoido.plugin.frontend.task.js.GoogleClosureMinifyCompiler;
-import com.matsuyoido.plugin.frontend.task.js.YuiJsMinifyCompiler;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -21,7 +21,13 @@ public class JsMinifyTask extends DefaultTask {
     @TaskAction
     public void compileJs(IncrementalTaskInputs inputs) {
         jsOutputDirectory.mkdirs();
-        minifier().execute(jsFileDirectory, jsOutputDirectory);
+        JsMinifyCompiler compiler = new JsMinifyCompiler(minifierType == MinifierType.YUI ? MinifyType.YUI : MinifyType.GOOGLE);
+        new Minifier("js", false){
+            @Override
+            protected String compile(Path filePath) {
+                return compiler.compile(filePath.toFile());
+            }
+        }.execute(jsFileDirectory, jsOutputDirectory);
     }
 
     public JsMinifyTask setJsFileDirectory(File directory) {
@@ -38,18 +44,4 @@ public class JsMinifyTask extends DefaultTask {
     }
 
 
-    public Minifier minifier() {
-        boolean isDeleteBeforeCompileFile = false;
-        if (minifierType == null) {
-            return new GoogleClosureMinifyCompiler(isDeleteBeforeCompileFile);
-        }
-        switch (minifierType) {
-            case YUI:
-                return new YuiJsMinifyCompiler(isDeleteBeforeCompileFile);
-            case GOOGLE_CLOSURE:
-                return new GoogleClosureMinifyCompiler(isDeleteBeforeCompileFile);
-            default:
-                return new GoogleClosureMinifyCompiler(isDeleteBeforeCompileFile);
-        }
-    }
 }
