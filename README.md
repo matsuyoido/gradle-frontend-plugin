@@ -17,6 +17,7 @@ group: Compile tasks
 1. `$ gradlew sassCompile`
 1. `$ gradlew cssMinify`
 1. `$ gradlew jsMinify`
+1. `$ gradlew jsMerge`
 
 ### sassCompile
 
@@ -88,6 +89,17 @@ frontend {
 }
 ```
 
+### jsMerge
+
+```gradle
+frontend {
+    js {
+        jsDir = file("$projectDir/src/main/js")
+        outDir = file("$projectDir/src/main/resources/static/js")
+    }
+}
+```
+
 ### All Extension
 
 ```gradle
@@ -119,16 +131,40 @@ frontend {
 }
 ```
 
+## Details
+
+### SassCompile
+
+* target: `.scss` files
+* output: `.css` file
+* fileName: scss file name
+
+### cssMinify
+
+* target: `.css` files
+* output: `.min.css` file
+* fileName: css file name
+
+### jsMinify
+
+* target: `.js` files
+* output: `.min.js` file
+* fileName: js file name
+
+### jsMerge
+
+* target: `.js.map` files
+    - this content is json file.
+    - 「key: `sources`」's value is type of string array and value is js file path.
+* output: `.min.js` file
+* fileName: map file name
+
 
 ## Bug or Request
 
 please create `New Issue` in Japanese or English.
 (Japanese is better...)
 
-## TODO memo
 
-### many js to one min js file.
-
-* by GoogleClosureCompiler
 
 

@@ -38,12 +38,17 @@ public class JsMinifyCompiler {
         this.type = type;
     }
 
-    public String compile(File cssFile) {
+    /**
+     * 
+     * @param jsFile JavaScript file
+     * @return minified javascript
+     */
+    public String compile(File jsFile) {
         switch (type) {
             case GOOGLE:
-                return convertString(Collections.singletonList(SourceFile.fromPath(cssFile.toPath(), charset)));
+                return convertString(Collections.singletonList(SourceFile.fromPath(jsFile.toPath(), charset)));
             case YUI:
-                try (Reader reader = new FileReader(cssFile)) {
+                try (Reader reader = new FileReader(jsFile)) {
                     return convertString(reader);
                 } catch (IOException e) {
                     throw new GradleException(e.getMessage(), e);
@@ -53,6 +58,16 @@ public class JsMinifyCompiler {
         }
     }
 
+    /**
+     * 
+     * @param jsFileList JavaScript file
+     * @return minified and merged javascript
+     */
+    public String compile(List<File> jsFileList) {
+        return convertString(jsFileList.stream()
+                                       .map(file -> SourceFile.fromPath(file.toPath(), charset))
+                                       .collect(Collectors.toList()));
+    }
 
     private String convertString(List<SourceFile> inputs) {
         try {

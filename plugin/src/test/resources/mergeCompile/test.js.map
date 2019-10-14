@@ -1,0 +1,6 @@
+{
+    "sources": [
+        "./../minCompile/test.js",
+        "temp.js"
+    ]
+}

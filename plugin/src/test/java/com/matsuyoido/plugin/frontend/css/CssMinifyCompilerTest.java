@@ -37,6 +37,6 @@ public class CssMinifyCompilerTest {
         
         String result = new CssMinifyCompiler(LineEnd.PLATFORM, MinifyType.YUI).compile(cssFile);
 
-        assertThat(result).isEqualTo("@charset \"UTF-8\";p{font-size:1px}a{display:flex}");
+        assertThat(result).isEqualTo("p{font-size:1px}a{display:flex}");
     }
 }
