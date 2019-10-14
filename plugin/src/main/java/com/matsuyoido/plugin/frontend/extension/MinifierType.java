@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.task;
+package com.matsuyoido.plugin.frontend.extension;
 
 /**
  * MinifierType
@@ -6,5 +6,4 @@ package com.matsuyoido.plugin.frontend.task;
 public enum MinifierType {
     YUI,
     GOOGLE_CLOSURE;
-    
 }

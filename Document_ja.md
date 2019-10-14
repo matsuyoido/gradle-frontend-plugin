@@ -113,3 +113,28 @@ frontend {
 `$ gradlew cssMinify jsMinify`
 
 
+## JS を部品化して実装をする。
+
+```gradle
+frontend {
+    js {
+        jsDir = file("$projectDir/src/main/js")
+        outDir = file("$projectDir/src/main/resources/static/js")
+    }
+}
+```
+
+### src/main/js 内の .js.mapファイル。
+
+※mapファイルの中でも最小限だけの構成でOK。
+
+```
+{
+    "sources": ["your/specified/include/js/file/path.js", "./../relative/js/path.js"]
+}
+```
+
+### 実行
+
+`$ gradlew jsMerge`
+

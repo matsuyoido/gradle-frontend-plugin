@@ -9,6 +9,7 @@ import java.io.IOException;
 import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.plugin.frontend.extension.CssExtension;
 import com.matsuyoido.plugin.frontend.task.CssMinifyTask;
+import com.matsuyoido.plugin.frontend.task.JsMergeTask;
 import com.matsuyoido.plugin.frontend.task.JsMinifyTask;
 import com.matsuyoido.plugin.frontend.task.SassCompileTask;
 
@@ -22,6 +23,7 @@ public class MainPlugin implements Plugin<Project> {
     private static final String SASS_TASK_NAME = "sassCompile";
     private static final String CSS_MIN_TASK_NAME = "cssMinify";
     private static final String JS_MIN_TASK_NAME = "jsMinify";
+    private static final String JS_MERGE_TASK_NAME = "jsMerge";
     private RootExtension extension;
 
     @Override
@@ -43,6 +45,7 @@ public class MainPlugin implements Plugin<Project> {
         }
         if (isActiveJsMinify()) {
             setupJsMinifyTask(taskContainer);
+            setupJsMergeTask(taskContainer);
         }
         // project.getGradle()
         //        .getTaskGraph()
@@ -135,6 +138,19 @@ public class MainPlugin implements Plugin<Project> {
 
         task.setGroup(COMPILE_GROUP);
         task.setDescription("JS to min file.");
+        task.getOutputs().upToDateWhen(t -> false); // always run setting
+        return task;
+    }
+
+    private JsMergeTask setupJsMergeTask(TaskContainer taskFactory) {
+        JavaScriptExtension extension = getExtension().javascriptConfigure();
+        JsMergeTask task = taskFactory.create(JS_MERGE_TASK_NAME, JsMergeTask.class);
+
+        task.setJsMapDirectory(extension.getJsDir())
+            .setOutputFileDirectory(extension.getOutputDir());
+        
+        task.setGroup(COMPILE_GROUP);
+        task.setDescription("Many JS file to one min file.");
         task.getOutputs().upToDateWhen(t -> false); // always run setting
         return task;
     }

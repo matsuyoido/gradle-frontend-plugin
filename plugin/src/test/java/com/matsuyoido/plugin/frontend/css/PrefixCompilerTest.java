@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.task.css.autoprefixer;
+package com.matsuyoido.plugin.frontend.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
@@ -13,15 +13,15 @@ import org.junit.Test;
 /**
  * PrefixerTest
  */
-public class PrefixerTest {
+public class PrefixCompilerTest {
 
     private CanIUse canIUse;
-    private Prefixer prefixer;
+    private PrefixCompiler prefixer;
 
     @Before
     public void setup() throws IOException {
         this.canIUse = new CanIUse(new File(PathUtil.classpathResourcePath("caniuse/data.json")));
-        this.prefixer = new Prefixer(canIUse.getCssSupports());
+        this.prefixer = new PrefixCompiler(canIUse.getCssSupports());
     }
 
     // @see https://github.com/postcss/autoprefixer/tree/master/test/cases

@@ -22,7 +22,7 @@ wrapper {
 }
 
 
-subprojects {
+project(':plugin') {
     apply {
         plugin 'java'
         plugin 'java-library'
@@ -57,9 +57,7 @@ subprojects {
         }
     }
     tasks.eclipse.dependsOn(initSrcDirs)
-}
 
-project(':plugin') {
     repositories {
         mavenCentral()
     }

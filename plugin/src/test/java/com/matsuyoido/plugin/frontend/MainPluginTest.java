@@ -91,7 +91,7 @@ public class MainPluginTest {
         );
 
         String result = run("tasks", "--all").getOutput();
-        assertThat(result).contains("sassCompile", "cssMinify", "jsMinify");
+        assertThat(result).contains("sassCompile", "cssMinify", "jsMinify", "jsMerge");
     }
 
     @Test
@@ -372,5 +372,37 @@ public class MainPluginTest {
         assertThat(result.task(":jsMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         assertThat(jsOutDir.list()).hasSize(1)
                                  .containsOnly("child.min.js");
+    }
+
+    @Test
+    public void jsMerge() throws IOException {
+        File jsInDir = new File(getProjectDir(), "src/main/js");
+        File jsOutDir = new File(getProjectDir(), "build/resources/static/js");
+
+        new File(jsInDir, "inner").mkdirs();
+        jsOutDir.mkdirs();
+        Files.write(jsInDir.toPath().resolve("child.js"), 
+            "function hoge() {}".getBytes(),
+            StandardOpenOption.CREATE_NEW);
+        Files.write(jsInDir.toPath().resolve("inner/child.js"),
+            "function fuga() {}".getBytes(),
+            StandardOpenOption.CREATE_NEW);
+        Files.write(jsInDir.toPath().resolve("test.js.map"),
+            "{ \"sources\": [\"child.js\", \"./inner/child.js\"] }".getBytes(),
+            StandardOpenOption.CREATE_NEW);
+
+        setup(
+            "frontend {",
+            "  js {",
+            "    jsDir = file(\"$projectDir/src/main/js\")",
+            "    outDir = file(\"$projectDir/build/resources/static/js\")",
+            "  }",
+           "}"
+        );
+
+        BuildResult result = run("jsMerge");
+        assertThat(result.task(":jsMerge").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(jsOutDir.list()).hasSize(1)
+                                   .containsOnly("test.min.js");
     }
 }
