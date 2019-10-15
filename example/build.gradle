@@ -5,13 +5,14 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.matsuyoido:plugin:0.0.4"
+    classpath "gradle.plugin.com.matsuyoido:plugin:1.0.0"
   }
 }
 
 apply plugin: "com.matsuyoido.frontend"
 
 frontend {
+    lineEnding = 'linux'
     css {
         sassDir = file("$projectDir/src/main/sass")
         minifyEnable = true
