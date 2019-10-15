@@ -5,12 +5,17 @@
         {
             "label": "refresh classpath",
             "type": "shell",
-            "command": "cd _master; ./gradlew.bat cleanEclipse eclipse pluginUnderTestMetadata"
+            "command": "cd _master; ./gradlew.bat cleanEclipse eclipse pluginUnderTestMetadata --refresh-dependencies"
         },
         {
             "label": "plugin publish",
             "type": "shell",
             "command": "cd _master; ./gradlew.bat clean :plugin:publishPlugins --stacktrace"
+        },
+        {
+            "label": "check dependencies",
+            "type": "shell",
+            "command": "cd _master; ./gradlew.bat :plugin:dependencies"
         }
     ]
 }

@@ -47,6 +47,7 @@ project(':plugin') {
     javadoc {
         options.charSet = "${defaultEncoding}"
         options.encoding = "${defaultEncoding}"
+        failOnError = false // javadoc create error, but publish not require. Because, failed ignore.
     }
 
     task initSrcDirs {
@@ -69,9 +70,9 @@ project(':plugin') {
 
         implementation 'io.bit3:jsass:5.9.2'
         implementation 'com.yahoo.platform.yui:yuicompressor:2.4.8'
-        implementation 'com.google.javascript:closure-compiler:v20190709'
+        api 'com.google.javascript:closure-compiler-unshaded:v20190709'
         // https://github.com/google/auto/blob/master/value/userguide/index.md
-        api 'com.google.auto.value:auto-value-annotations:1.6.6'
+        implementation 'com.google.auto.value:auto-value-annotations:1.6.6'
         annotationProcessor 'com.google.auto.value:auto-value:1.6.6'
         // closure-compiler is required above...
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9.3'
@@ -80,7 +81,7 @@ project(':plugin') {
         implementation 'org.webjars.npm:caniuse-db:1.0.30000748'
     }
 
-    version = '0.0.4'
+    version = '1.0.0'
     group = 'com.matsuyoido'
     jar.baseName = 'matsuyoido-frontend-gradle-plugin'
 

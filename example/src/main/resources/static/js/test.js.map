@@ -1,0 +1,3 @@
+{
+    "sources": ["./testlog.js", "hello.js"]
+}
