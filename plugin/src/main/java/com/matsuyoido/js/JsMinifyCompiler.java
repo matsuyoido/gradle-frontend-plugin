@@ -83,8 +83,8 @@ public class JsMinifyCompiler {
             compiler.compile(externs, inputs, option);
             if (compiler.hasErrors()) {
                 String errMsg = compiler
-                        .getErrorManager().getErrors().stream().map(error -> error.sourceName + " : "
-                                + String.valueOf(error.getLineNumber()) + " - " + error.description)
+                        .getErrorManager().getErrors().stream().map(error -> error.getSourceName() + " : "
+                                + String.valueOf(error.getLineNumber()) + " - " + error.getDescription())
                         .collect(Collectors.joining(System.lineSeparator()));
                 throw new GradleException(errMsg);
             }

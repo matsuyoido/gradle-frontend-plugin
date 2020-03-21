@@ -39,7 +39,7 @@ public class CssMinifyCompiler {
 
     /**
      * 
-     * @param file CSS File
+     * @param cssFile CSS File
      * @return minified css
      */
     public String compile(File cssFile) {
