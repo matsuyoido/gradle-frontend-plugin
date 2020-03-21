@@ -23,42 +23,10 @@ group: Compile tasks
 
 ```gradle
 frontend {
-    // If you want to set encoding. 'windows' or 'linux' or 'mac'
-    lineEnding = 'linux'
-    css {
-        sassDir = file("$projectDir/src/main/sass")
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        // If you compile and minify, set true.
-        minifyEnable = false
-        // If yout want to delete precompile css file, set true.
-        originDeleted = false
-        outDir = file("$projectDir/src/main/resources/static/css")
-    }
-}
-```
-
-### cssMinify
-
-```gradle
-frontend {
-    css {
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        // If yout want to delete precompile css file. set true
-        originDeleted = false
-        outDir = file("$projectDir/src/main/resources/static/css")
-    }
-}
-```
-
-#### cssMinify & autoPrefixer
-
-```gradle
-frontend {
-    css {
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        outDir = file("$projectDir/src/main/resources/static/css")
-        // If you want to add prefixer, set true.
-        prefixerEnable = false
+    setting {
+        // If you want to set encoding. 'windows' or 'linux' or 'mac'
+        lineEnding = 'linux'
+        // If you want to add prefixer, set values.
         prefixer {
             // specify data.json from https://github.com/Fyrd/caniuse/blob/master/data.json
             // If don't set and enable=true, data.json is used from caniuse-db-1.0.30000748
@@ -73,18 +41,79 @@ frontend {
             android = ""
         }
     }
+    style {
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+            // If you compile and minify, set true. 
+            enableMinify = true
+            // If you want to add prefixer, set true.
+            addPrefixer = true
+        }
+        // you can multiple block `scss`.
+        scss {
+            inDir = file("$rootDir/resources/vendor")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
+    }
 }
 ```
+
+### cssMinify
+
+```gradle
+frontend {
+    setting {
+        // If you want to set encoding. 'windows' or 'linux' or 'mac'
+        lineEnding = 'linux'
+        // If you want to add prefixer, set values.
+        prefixer {
+            // specify data.json from https://github.com/Fyrd/caniuse/blob/master/data.json
+            // If don't set and enable=true, data.json is used from caniuse-db-1.0.30000748
+            caniuseData = file("$rootDir/caniuse/data.json")
+            // If set version string(ex. "76" or "all"), specified greater version check css supports & add prefixer.
+            ie = ""
+            edge = ""
+            chrome = ""
+            firefox = ""
+            safari = ""
+            ios = ""
+            android = ""
+        }
+    }
+    style {
+        css {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+            // If you want to add prefixer, set true.
+            addPrefixer = true
+        }
+        // you can multiple block `css`.
+        css {
+            inDir = file("$rootDir/resources/vendor")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
+    }
+}
+```
+
 
 ### jsMinify
 
 ```gradle
 frontend {
-    js {
-        jsDir = file("$projectDir/src/main/resources/static/js")
-        outDir = file("$projectDir/src/main/resources/static/js")
-        // If you want to specify minify compiler. 'google' (Default) or 'yahoo'
-        type = 'google'
+    script {
+        js {
+            inDir = file("$projectDir/src/main/resources/static/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+            // If you want to specify minify compiler. 'google' (Default) or 'yahoo'
+            type = 'google'
+        }
+        // you can multiple block `js`.
+        js {
+            inDir = file("$rootDir/resources/vendor")
+            outDir = file("$projectDir/src/main/resources/static/js")
+        }
     }
 }
 ```
@@ -93,9 +122,16 @@ frontend {
 
 ```gradle
 frontend {
-    js {
-        jsDir = file("$projectDir/src/main/js")
-        outDir = file("$projectDir/src/main/resources/static/js")
+    script {
+        js {
+            inDir = file("$projectDir/src/main/resources/static/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+        }
+        // you can multiple block `js`.
+        js {
+            inDir = file("$rootDir/resources/vendor")
+            outDir = file("$projectDir/src/main/resources/static/js")
+        }
     }
 }
 ```
@@ -104,14 +140,8 @@ frontend {
 
 ```gradle
 frontend {
-    lineEnding = 'linux'
-    css {
-        sassDir = file("$projectDir/your/scss/directory")
-        cssDir = file("$projectDir/your/css/directory")
-        outDir = file("$projectDir/your/css/output/directory")
-        minifyEnable = true
-        prefixerEnable = true
-        originDeleted = false
+    setting {
+        lineEnding = 'linux'
         prefixer {
             caniuseData = file("$rootDir/your/fit/version/data.json")
             ie = "all"
@@ -123,10 +153,25 @@ frontend {
             android = ""
         }
     }
-    js {
-        jsDir = file("$projectDir/your/javascript/directory")
-        outDir = file("$projectDir/your/javascript/output/directory")
-        type = 'google'
+    style {
+        scss {
+            inDir = file("$projectDir/your/scss/directory")
+            outDir = file("$projectDir/your/css/output/directory")
+            enableMinify = true
+            addPrefixer = true
+        }
+        css {
+            inDir = file("$projectDir/your/css/directory")
+            outDir = file("$projectDir/your/css/output/directory")
+            addPrefixer = true
+        }
+    }
+    script {
+        js {
+            inDir = file("$projectDir/your/javascript/directory")
+            outDir = file("$projectDir/your/javascript/output/directory")
+            type = 'google'
+        }
     }
 }
 ```
@@ -137,6 +182,7 @@ frontend {
 
 * target: `.scss` files
 * output: `.css` file
+    - If you set `enableMinify = true`, becomes `.min.css` file
 * fileName: scss file name
 
 ### cssMinify

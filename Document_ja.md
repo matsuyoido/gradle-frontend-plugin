@@ -10,6 +10,8 @@
 * AutoPrefixer も使いたいけれど、デプロイするときだけでOK。
     - min化するのも、デプロイするときだけで良い。
 * min化するのに、プラグインは1つだけで良い。
+* 複数のSASSファイルを別ディレクトリで管理をしたい
+    - 例えば、 `src/vendor/scss` と `src/main/sass` の2フォルダのファイルを、1ディレクトリ or 別ディレクトリにコンパイルしたい などなど...
 
 
 ## 利用をする
@@ -24,12 +26,38 @@ https://plugins.gradle.org/plugin/com.matsuyoido.frontend にアクセスして�
 
 ```gradle
 frontend {
-    css {
-        sassDir = file("$projectDir/src/main/sass")
-        cssDir = file("$projectDir/src/main/resources/static/css")
+    style {
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
     }
 }
 ```
+
+### 実行
+
+`$ gradlew sassCompile`
+
+
+## SASS(SCSS) -> CSS にしたい(フレームワークのファイルと、自分でカスタマイズしたものを同時に変換したい)
+
+```gradle
+frontend {
+    style {
+        scss {
+            inDir = file("$rootDir/src/vendor")
+            outDir = file("$projectDir/src/main/resources/static/vendor)
+        }
+        scss {
+            inDir = file("$rootDir/src/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
+    }
+}
+```
+
+※scss のブロックは複数設定が可能
 
 ### 実行
 
@@ -42,13 +70,7 @@ frontend {
 
 ```gradle
 frontend {
-    css {
-        sassDir = file("$projectDir/src/main/sass")
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        outDir = file("$projectDir/src/main/resources/static/css")
-        originDeleted = true
-        minifyEnable = true
-        prefixerEnable = true
+    setting {
         prefixer {
             // 1. https://github.com/Fyrd/caniuse/blob/master/data.json からファイルを取得する
             // 2. 取得したファイルを指定する
@@ -61,6 +83,14 @@ frontend {
             safari = ""
             ios = ""
             android = ""
+        }
+    }
+    style {
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+            enableMinify = true
+            addPrefixer = true
         }
     }
 }
@@ -77,18 +107,22 @@ frontend {
 
 ```gradle
 frontend {
-    css {
-        sassDir = file("$projectDir/src/main/sass")
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        outDir = file("$projectDir/src/main/resources/static/css")
-        minifyEnable = true
+    style {
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$rootDir/temp/check/${project.name}")
+        }
+        css {
+            inDir = file("$rootDir/temp/check/${project.name}")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
     }
 }
 ```
 
 ### 実行
 
-`$ gradlew sassCompile`
+`$ gradlew sassCompile cssMinify`
 
 
 ## CSS -> min.css にする、 JS -> min.js にする
@@ -97,13 +131,17 @@ frontend {
 
 ```gradle
 frontend {
-    css {
-        cssDir = file("$projectDir/src/main/resources/static/css")
-        outDir = file("$projectDir/src/main/resources/static/css")
+    style {
+        css {
+            inDir = file("$projectDir/src/main/resources/static/css")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
     }
-    js {
-        jsDir = file("$projectDir/src/main/resources/static/js")
-        outDir = file("$projectDir/src/main/resources/static/js")
+    script {
+        js {
+            inDir = file("$projectDir/src/main/resources/static/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+        }
     }
 }
 ```
@@ -117,9 +155,11 @@ frontend {
 
 ```gradle
 frontend {
-    js {
-        jsDir = file("$projectDir/src/main/js")
-        outDir = file("$projectDir/src/main/resources/static/js")
+    style {
+        js {
+            inDir = file("$projectDir/src/main/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+        }
     }
 }
 ```
@@ -129,6 +169,7 @@ frontend {
 ※mapファイルの中でも最小限だけの構成でOK。
 
 ```
+.js.map の例
 {
     "sources": ["your/specified/include/js/file/path.js", "./../relative/js/path.js"]
 }
