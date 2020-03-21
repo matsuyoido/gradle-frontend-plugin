@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin;
+package com.matsuyoido;
 
 import java.util.Arrays;
 

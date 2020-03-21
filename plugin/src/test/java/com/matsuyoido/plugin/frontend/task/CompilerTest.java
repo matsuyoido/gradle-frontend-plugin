@@ -16,6 +16,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * CompilerTest
  */
+@Deprecated // TaskのテストはPlugin の結合テストで担保することとする
 public class CompilerTest {
 
     @Rule

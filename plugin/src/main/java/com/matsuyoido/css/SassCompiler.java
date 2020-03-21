@@ -1,9 +1,9 @@
-package com.matsuyoido.plugin.frontend.css;
+package com.matsuyoido.css;
 
 import java.io.File;
 import java.io.IOException;
 
-import com.matsuyoido.plugin.LineEnd;
+import com.matsuyoido.LineEnd;
 
 import org.gradle.api.GradleException;
 

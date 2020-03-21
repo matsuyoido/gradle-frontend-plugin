@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-// import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -73,20 +72,57 @@ public class MainPluginTest {
     }
 
     @Test
-    public void enabledTasks_all() throws IOException {
+    public void enabledTasks_all() throws Exception {
+        Path dataJsonPath = getProjectDir().toPath().resolve("data.json");
+        Files.copy(new File(PathUtil.classpathResourcePath("caniuse/data.json")).toPath(), dataJsonPath);
         setup(
             "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    minifyEnable = true",
-            "    originDeleted = true",
-            "    outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "  setting {",
+            "    lineEnding = 'windows'",
+            "    prefixer {",
+            "      caniuseData = file(\"$projectDir/data.json\")",
+            "      ie = ''",
+            "      edge = ''",
+            "      chrome = 'all'",
+            "      firefox = ''",
+            "      safari = ''",
+            "      ios = ''",
+            "      android = ''",
+            "    }",
             "  }",
-            "  js {",
-            "    jsDir = file(\"$projectDir/src/main/resources/static/js\")",
-            "    outDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      addPrefixer = true",
+            "      enableMinify = true",
+            "    }",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass2\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css2\")",
+            "    }",
+            "    css {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      addPrefixer = true",
+            "    }",
+            "    css {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/css1\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css1\")",
+            "    }",
             "  }",
+            "  script {",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "      type = 'yahoo'",
+            "    }",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/js2\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/js2\")",
+            "    }",
+            "  }",
+            "",
            "}"
         );
 
@@ -95,53 +131,56 @@ public class MainPluginTest {
     }
 
     @Test
-    public void enabledTask_onlySassCompile() throws IOException {
+    public void enabledTask_onlySass() throws IOException {
         setup(
             "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      addPrefixer = true",
+            "      enableMinify = true",
+            "    }",
             "  }",
            "}"
         );
 
         String result = run("tasks", "--all").getOutput();
-        assertThat(result).contains("sassCompile").doesNotContain("cssMinify", "jsMinify");
+        assertThat(result).contains("sassCompile").doesNotContain("cssMinify", "jsMinify", "jsMerge");
+    }
+    @Test
+    public void enabledTask_onlyCss() throws IOException {
+        setup(
+            "frontend {",
+            "  style {",
+            "    css {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      addPrefixer = true",
+            "    }",
+            "  }",
+           "}"
+        );
+
+        String result = run("tasks", "--all").getOutput();
+        assertThat(result).contains("cssMinify").doesNotContain("sassCompile", "jsMinify", "jsMerge");
     }
 
     @Test
-    public void enabledTasks_onlyJsMinify() throws IOException {
+    public void enabledTasks_onlyJs() throws IOException {
         setup(
             "frontend {",
-            "  js {",
-            "    jsDir = file(\"$projectDir/src/main/resources/static/js\")",
-            "    outDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "  script {",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "    }",
             "  }",
            "}"
         );
 
         String result = run("tasks", "--all").getOutput();
-        assertThat(result).contains("jsMinify").doesNotContain("sassCompile", "cssMinify");
-    }
-
-    @Test
-    public void enableTasks_onlyMinify() throws IOException {
-        setup(
-            "frontend {",
-            "  css {",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    minifyEnable = true",
-            "    outDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "  }",
-            "  js {",
-            "    jsDir = file(\"$projectDir/src/main/resources/static/js\")",
-            "    outDir = file(\"$projectDir/src/main/resources/static/js\")",
-            "  }",
-           "}"
-        );
-
-        String result = run("tasks", "--all").getOutput();
-        assertThat(result).contains("cssMinify", "jsMinify").doesNotContain("sassCompile");
+        assertThat(result).contains("jsMinify", "jsMerge").doesNotContain("sassCompile", "cssMinify");
     }
 
 
@@ -159,9 +198,11 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "    }",
             "  }",
            "}"
         );
@@ -174,7 +215,7 @@ public class MainPluginTest {
     }
 
     @Test
-    public void sassCompileTask_andMinify_existEach() throws IOException {
+    public void sassCompileTask_andMinify() throws IOException {
         File sassDir = new File(getProjectDir(), "src/main/sass");
         File cssDir = new File(getProjectDir(), "src/main/resources/static/css");
 
@@ -187,12 +228,12 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    minifyEnable = true",
-            "    originDeleted = false",
-            "    outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      enableMinify = true",
+            "    }",
             "  }",
            "}"
         );
@@ -200,62 +241,38 @@ public class MainPluginTest {
         BuildResult result = run("sassCompile");
 
         assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        assertThat(cssDir.list()).hasSize(2)
-                                 .containsOnly("child.min.css", "child.css");
-    }
-
-    @Test
-    public void sassCompileTask_andMinify_onlyExistMinCss() throws IOException {
-        File sassDir = new File(getProjectDir(), "src/main/sass");
-        File cssDir = new File(getProjectDir(), "src/main/resources/static/css");
-
-        sassDir.mkdirs();
-        cssDir.mkdirs();
-        File sassFile = new File(sassDir, "child.scss");
-        File notCompileFile = new File(sassDir, "_notCompile.scss");
-        sassFile.createNewFile();
-        notCompileFile.createNewFile();
-
-        setup(
-            "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    minifyEnable = true",
-            "    originDeleted = true",
-            "    outDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "  }",
-           "}"
-        );
-
-        BuildResult result = run("sassCompile");
-
-        assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        assertThat(result.task(":cssMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-
         assertThat(cssDir.list()).hasSize(1)
                                  .containsOnly("child.min.css");
     }
 
     @Test
-    public void sassCompileTask_alwaysRun() throws IOException {
-        File sassDir = new File(getProjectDir(), "src/main/sass");
+    public void sassCompileTask_andMinify_onlyExistMinCss() throws IOException {
+        File sassDir1 = new File(getProjectDir(), "src/main/sass/custom");
         File cssDir = new File(getProjectDir(), "src/main/resources/static/css");
+        File sassDir2 = new File(getProjectDir(), "src/main/sass/vendor");
 
-        sassDir.mkdirs();
+        sassDir1.mkdirs();
+        sassDir2.mkdirs();
         cssDir.mkdirs();
-        File sassFile = new File(sassDir, "child.scss");
-        File notCompileFile = new File(sassDir, "_notCompile.scss");
-        sassFile.createNewFile();
+        File sassFile1 = new File(sassDir1, "child.scss");
+        File notCompileFile = new File(sassDir1, "_notCompile.scss");
+        File sassFile2 = new File(sassDir2, "child2.scss");
+        sassFile1.createNewFile();
+        sassFile2.createNewFile();
         notCompileFile.createNewFile();
 
         setup(
             "frontend {",
-            "  css {",
-            "    sassDir = file(\"$projectDir/src/main/sass\")",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    originDeleted = true",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass/custom\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      enableMinify = true",
+            "    }",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass/vendor\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "    }",
             "  }",
            "}"
         );
@@ -263,7 +280,9 @@ public class MainPluginTest {
         BuildResult result = run("sassCompile");
 
         assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-        assertThat(run("sassCompile").task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+
+        assertThat(cssDir.list()).hasSize(2)
+                                 .containsOnly("child.min.css", "child2.css");
     }
 
     @Test
@@ -280,9 +299,11 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  css {",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    outDir = file(\"$projectDir/build/resources/static/css\")",
+            "  style {",
+            "    css {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      outDir = file(\"$projectDir/build/resources/static/css\")",
+            "    }",
             "  }",
            "}"
         );
@@ -317,10 +338,7 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  css {",
-            "    cssDir = file(\"$projectDir/src/main/resources/static/css\")",
-            "    outDir = file(\"$projectDir/build/resources/static/css\")",
-            "    prefixerEnable = true",
+            "  setting {",
             "    prefixer {",
             "      caniuseData = file(\"$projectDir/data.json\")",
             "      ie = ''",
@@ -330,6 +348,13 @@ public class MainPluginTest {
             "      safari = ''",
             "      ios = ''",
             "      android = ''",
+            "    }",
+            "  }",
+            "  style {",
+            "    css {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      outDir = file(\"$projectDir/build/resources/static/css\")",
+            "      addPrefixer = true",
             "    }",
             "  }",
            "}"
@@ -360,10 +385,12 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  js {",
-            "    jsDir = file(\"$projectDir/src/main/resources/static/js\")",
-            "    outDir = file(\"$projectDir/build/resources/static/js\")",
-            "    type = \"yahoo\"",
+            "  script {",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "      outDir = file(\"$projectDir/build/resources/static/js\")",
+            "      type = \"yahoo\"",
+            "    }",
             "  }",
            "}"
         );
@@ -393,9 +420,11 @@ public class MainPluginTest {
 
         setup(
             "frontend {",
-            "  js {",
-            "    jsDir = file(\"$projectDir/src/main/js\")",
-            "    outDir = file(\"$projectDir/build/resources/static/js\")",
+            "  script {",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/js\")",
+            "      outDir = file(\"$projectDir/build/resources/static/js\")",
+            "    }",
             "  }",
            "}"
         );

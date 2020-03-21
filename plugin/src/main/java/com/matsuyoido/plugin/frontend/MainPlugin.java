@@ -1,13 +1,9 @@
 package com.matsuyoido.plugin.frontend;
 
-import com.matsuyoido.plugin.frontend.extension.JavaScriptExtension;
-import com.matsuyoido.plugin.frontend.extension.PrefixerExtension;
 import com.matsuyoido.plugin.frontend.extension.RootExtension;
 
 import java.io.IOException;
 
-import com.matsuyoido.caniuse.CanIUse;
-import com.matsuyoido.plugin.frontend.extension.CssExtension;
 import com.matsuyoido.plugin.frontend.task.CssMinifyTask;
 import com.matsuyoido.plugin.frontend.task.JsMergeTask;
 import com.matsuyoido.plugin.frontend.task.JsMinifyTask;
@@ -24,117 +20,73 @@ public class MainPlugin implements Plugin<Project> {
     private static final String CSS_MIN_TASK_NAME = "cssMinify";
     private static final String JS_MIN_TASK_NAME = "jsMinify";
     private static final String JS_MERGE_TASK_NAME = "jsMerge";
-    private RootExtension extension;
 
     @Override
     public void apply(Project project) {
-        this.extension = project.getExtensions().create("frontend", RootExtension.class, project);
+        project.getExtensions().create("frontend", RootExtension.class, project);
         project.afterEvaluate(this::setupTasks);
     }
 
-    RootExtension getExtension() {
-        return this.extension;
-    }
-
     void setupTasks(Project project) {
+        RootExtension extension = project.getExtensions().getByType(RootExtension.class);
         TaskContainer taskContainer = project.getTasks();
 
-        CssMinifyTask minifyTask = isActiveCssMinify() ? setupCssMinifyTask(taskContainer) : null;
-        if (isActiveSassCompile()) {
-            setupSassCompileTask(taskContainer, minifyTask);
+        if (!extension.getScssSetting().isEmpty()) {
+            setupSassCompileTask(extension, taskContainer);
         }
-        if (isActiveJsMinify()) {
-            setupJsMinifyTask(taskContainer);
-            setupJsMergeTask(taskContainer);
+        if (!extension.getCssSetting().isEmpty()) {
+            setupCssMinifyTask(extension, taskContainer);
         }
+        if (!extension.getJSSetting().isEmpty()) {
+            setupJsMinifyTask(extension, taskContainer);
+            setupJsMergeTask(extension, taskContainer);
+        }
+
         // project.getGradle()
-        //        .getTaskGraph()
-        //        .whenReady(graph -> {
-        //             if (graph.hasTask(SASS_TASK_NAME)) {
-                        
-        //             }
-        //        });
+        // .getTaskGraph()
+        // .whenReady(graph -> {
+        // if (graph.hasTask(SASS_TASK_NAME)) {
+
+        // }
+        // });
     }
 
-    private boolean isActiveSassCompile() {
-        CssExtension sassExtension = getExtension().cssConfigure();
-        if (sassExtension == null) {
-            return false;
-        }
-        return sassExtension.getSassDir() != null && sassExtension.getCssDir() != null;
-    }
-
-    private SassCompileTask setupSassCompileTask(TaskContainer taskFactory, CssMinifyTask minifyTask) {
-        CssExtension extension = getExtension().cssConfigure();
-        SassCompileTask task = taskFactory.create(SASS_TASK_NAME, SassCompileTask.class);
-
-        task.setSassFileDirectory(extension.getSassDir())
-            .setOutputFileDirectory(extension.getCssDir())
-            .setLineEnd(this.extension.getLineEnding());
-
-        if (minifyTask != null) {
-            task.finalizedBy(minifyTask);
-            minifyTask.onlyIf((t) -> {
-                boolean notSassRun = !(task.getState().getExecuted());
-                boolean runCondition = (task.getState().getFailure() == null && extension.isMinifyEnable());
-                return notSassRun || runCondition;
-            });
+    private SassCompileTask setupSassCompileTask(RootExtension extension, TaskContainer taskFactory) {
+        try {
+            SassCompileTask task = taskFactory.create(SASS_TASK_NAME, SassCompileTask.class,
+                extension.getLineEndSetting(),
+                extension.getScssSetting(), 
+                ( (extension.getPrefixerSetting() == null) ? null : new PrefixerCanIUse(extension.getPrefixerSetting()) )
+            );
+            task.setGroup(COMPILE_GROUP);
+            task.setDescription("SCSS(SASS) to CSS file.");
+            task.getOutputs().upToDateWhen(t -> false); // always run setting
+            return task;
+        } catch (IOException e) {
+            throw new GradleException(e.getMessage(), e);
         }
 
-        task.setGroup(COMPILE_GROUP);
-        task.setDescription("SCSS(SASS) to CSS file.");
-        task.getOutputs().upToDateWhen(t -> false); // always run setting
-        return task;
     }
 
-
-    private boolean isActiveCssMinify() {
-        CssExtension cssExtension = getExtension().cssConfigure();
-        if (cssExtension == null) {
-            return false;
+    private CssMinifyTask setupCssMinifyTask(RootExtension extension, TaskContainer taskFactory) {
+        try {
+            CssMinifyTask task = taskFactory.create(CSS_MIN_TASK_NAME, CssMinifyTask.class,
+                extension.getLineEndSetting(),
+                extension.getCssSetting(),
+                ( (extension.getPrefixerSetting() == null) ? null : new PrefixerCanIUse(extension.getPrefixerSetting()) )
+            );
+            task.setGroup(COMPILE_GROUP);
+            task.setDescription("CSS to min file.");
+            task.getOutputs().upToDateWhen(t -> false); // always run setting
+            return task;
+        } catch (IOException e) {
+            throw new GradleException(e.getMessage(), e);
         }
-        return cssExtension.getCssDir() != null && cssExtension.getOutDir() != null;
     }
 
-    private CssMinifyTask setupCssMinifyTask(TaskContainer taskFactory) {
-        CssExtension extension = getExtension().cssConfigure();
-        CssMinifyTask task = taskFactory.create(CSS_MIN_TASK_NAME, CssMinifyTask.class);
-        if (extension.isPrefixerEnable()) {
-            PrefixerExtension prefixerExtension = extension.prefixerConfig();
-            try {
-                CanIUse caniuse = new PrefixerCanIUse(prefixerExtension);
-                task.setPrefixer(caniuse.getCssSupports());
-            } catch (IOException e) {
-                throw new GradleException(e.getMessage(), e);
-            }
-        }
 
-        task.setCssFileDirectory(extension.getCssDir())
-            .setOutputFileDirectory(extension.getOutDir())
-            .setDeleteBeforeCompileFile(extension.isOriginFileDelete())
-            .setLineEnd(this.extension.getLineEnding());
-
-        task.setGroup(COMPILE_GROUP);
-        task.setDescription("CSS to min file.");
-        task.getOutputs().upToDateWhen(t -> false); // always run setting
-        return task;
-    }
-
-    private boolean isActiveJsMinify() {
-        JavaScriptExtension jsExtension = getExtension().javascriptConfigure();
-        if (jsExtension == null) {
-            return false;
-        }
-        return jsExtension.getJsDir() != null && jsExtension.getOutputDir() != null;
-    }
-
-    private JsMinifyTask setupJsMinifyTask(TaskContainer taskFactory) {
-        JavaScriptExtension extension = getExtension().javascriptConfigure();
-        JsMinifyTask task = taskFactory.create(JS_MIN_TASK_NAME, JsMinifyTask.class);
-
-        task.setJsFileDirectory(extension.getJsDir())
-            .setOutputFileDirectory(extension.getOutputDir())
-            .setMinifierType(extension.getMinifierType());
+    private JsMinifyTask setupJsMinifyTask(RootExtension extension, TaskContainer taskFactory) {
+        JsMinifyTask task = taskFactory.create(JS_MIN_TASK_NAME, JsMinifyTask.class, extension.getJSSetting());
 
         task.setGroup(COMPILE_GROUP);
         task.setDescription("JS to min file.");
@@ -142,16 +94,13 @@ public class MainPlugin implements Plugin<Project> {
         return task;
     }
 
-    private JsMergeTask setupJsMergeTask(TaskContainer taskFactory) {
-        JavaScriptExtension extension = getExtension().javascriptConfigure();
-        JsMergeTask task = taskFactory.create(JS_MERGE_TASK_NAME, JsMergeTask.class);
+    private JsMergeTask setupJsMergeTask(RootExtension extension, TaskContainer taskFactory) {
+        JsMergeTask task = taskFactory.create(JS_MERGE_TASK_NAME, JsMergeTask.class, extension.getJSSetting());
 
-        task.setJsMapDirectory(extension.getJsDir())
-            .setOutputFileDirectory(extension.getOutputDir());
-        
         task.setGroup(COMPILE_GROUP);
         task.setDescription("Many JS file to one min file.");
         task.getOutputs().upToDateWhen(t -> false); // always run setting
         return task;
     }
+
 }
