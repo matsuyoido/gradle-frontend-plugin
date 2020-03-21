@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.js;
+package com.matsuyoido.js;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;

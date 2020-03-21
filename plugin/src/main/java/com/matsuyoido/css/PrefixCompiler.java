@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.css;
+package com.matsuyoido.css;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;

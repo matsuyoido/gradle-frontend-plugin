@@ -1,9 +1,9 @@
-package com.matsuyoido.plugin.frontend.css;
+package com.matsuyoido.js;
 
 /**
  * MinifyType
  */
 public enum MinifyType {
-    SIMPLE,
+    GOOGLE,
     YUI;
 }

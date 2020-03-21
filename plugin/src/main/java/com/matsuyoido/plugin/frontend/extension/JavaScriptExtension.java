@@ -1,47 +1,53 @@
 package com.matsuyoido.plugin.frontend.extension;
 
 import java.io.File;
+import java.io.Serializable;
 
 
 /**
  * ex.
  * <pre>
  * ___ {
- *     jsDir = file("$projectDir/src/main/resources/static/js")
+ *     inDir = file("$projectDir/src/main/resources/static/js")
  *     outDir = file("$projectDir/src/main/resources/static/js")
  *     type = 'yahoo'
  * }
  * </pre>
  */
-public class JavaScriptExtension {
-    private File jsDir;
-    private File outDir;
+public class JavaScriptExtension implements Serializable {
+    private static final long serialVersionUID = -2923813369453641197L;
+
+    private File inputDirectory;
+    private File outputDirectory;
     private MinifierType type;
-    
-    public void jsDir(File path) {
-        this.jsDir = path;
+
+    public void setInDir(File path) {
+        this.inputDirectory = path;
     }
-    public void outDir(File path) {
-        this.outDir = path;
+    public void setOutDir(File path) {
+        this.outputDirectory = path;
     }
     public void setType(String type) {
-        switch (type) {
-            case "yahoo":
-                this.type = MinifierType.YUI;
-                break;
-            case "google":
-                this.type = MinifierType.GOOGLE_CLOSURE;
-                break;
+        if (type != null) {
+            switch (type) {
+                case "yahoo":
+                    this.type = MinifierType.YUI;
+                    break;
+                case "google":
+                    this.type = MinifierType.GOOGLE_CLOSURE;
+                    break;
+            }
         }
     }
 
-    public File getJsDir() {
-        return this.jsDir;
+    public File getInputDirectory() {
+        return this.inputDirectory;
     }
-    public File getOutputDir() {
-        return this.outDir;
+    public File getOutputDirectory() {
+        return this.outputDirectory;
     }
     public MinifierType getMinifierType() {
         return this.type == null ? MinifierType.GOOGLE_CLOSURE : this.type;
     }
+
 }

@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.js;
+package com.matsuyoido.js;
 
 import java.io.File;
 import java.io.FileReader;

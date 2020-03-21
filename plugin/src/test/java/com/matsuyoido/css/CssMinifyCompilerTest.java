@@ -1,10 +1,10 @@
-package com.matsuyoido.plugin.frontend.css;
+package com.matsuyoido.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 
-import com.matsuyoido.plugin.LineEnd;
+import com.matsuyoido.LineEnd;
 import com.matsuyoido.plugin.PathUtil;
 
 import org.junit.Rule;

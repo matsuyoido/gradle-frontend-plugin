@@ -4,21 +4,15 @@ import java.io.File;
 import java.io.Serializable;
 
 /**
- * ex.
- * <pre>
- * ___ {
- *     inDir = file("$projectDir/src/main/sass")
- *     outDir = file("$projectDir/src/main/resources/static/css")
- *     addPrefixer = false
- * }
- * </pre>
+ * ScssExtension
  */
-public class CssExtension implements Serializable {
-    private static final long serialVersionUID = 5074741537940502479L;
+public class ScssExtension implements Serializable {
+    private static final long serialVersionUID = 692641724829802569L;
 
     private File inputDirectory;
     private File outputDirectory;
     private boolean addPrefixer;
+    private boolean enableMinify;
 
     public void setInDir(File path) {
         this.inputDirectory = path;
@@ -28,6 +22,9 @@ public class CssExtension implements Serializable {
     }
     public void setAddPrefixer(boolean isAdd) {
         this.addPrefixer = isAdd;
+    }
+    public void setEnableMinify(boolean enable) {
+        this.enableMinify = enable;
     }
 
 
@@ -39,6 +36,9 @@ public class CssExtension implements Serializable {
     }
     public boolean isAddPrefixer() {
         return this.addPrefixer;
+    }
+    public boolean isEnableMinify() {
+        return this.enableMinify;
     }
 
 }

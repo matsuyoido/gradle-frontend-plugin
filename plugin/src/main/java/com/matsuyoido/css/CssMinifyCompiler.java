@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend.css;
+package com.matsuyoido.css;
 
 import java.io.File;
 import java.io.FileReader;
@@ -17,7 +17,7 @@ import com.helger.css.ECSSVersion;
 import com.helger.css.decl.CascadingStyleSheet;
 import com.helger.css.reader.CSSReader;
 import com.helger.css.writer.CSSWriterSettings;
-import com.matsuyoido.plugin.LineEnd;
+import com.matsuyoido.LineEnd;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 
 import org.gradle.api.GradleException;

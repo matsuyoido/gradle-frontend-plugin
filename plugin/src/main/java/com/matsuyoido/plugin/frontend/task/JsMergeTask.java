@@ -6,9 +6,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matsuyoido.plugin.frontend.js.JsMinifyCompiler;
+import com.matsuyoido.js.JsMinifyCompiler;
+import com.matsuyoido.plugin.frontend.extension.JavaScriptExtension;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -19,21 +22,19 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
  */
 public class JsMergeTask extends DefaultTask {
 
-    private File jsMapDirectory;
-    private File jsOutputDirectory;
+    private List<JavaScriptExtension> settings;
+
+    @Inject
+    public JsMergeTask(List<JavaScriptExtension> settings) {
+        this.settings = settings;
+    }
 
     @TaskAction
     public void mergeJavascript(IncrementalTaskInputs inputs) {
-        new MergeCompile().execute(jsMapDirectory, jsOutputDirectory);
-    }
-
-    public JsMergeTask setJsMapDirectory(File jsMapDirectory) {
-        this.jsMapDirectory = jsMapDirectory;
-        return this;
-    }
-    public JsMergeTask setOutputFileDirectory(File outputDir) {
-        this.jsOutputDirectory = outputDir;
-        return this;
+        MergeCompile compiler = new MergeCompile();
+        settings.forEach(setting -> {
+            compiler.execute(setting.getInputDirectory(), setting.getOutputDirectory());
+        });
     }
 
     private class MergeCompile extends Compiler {
