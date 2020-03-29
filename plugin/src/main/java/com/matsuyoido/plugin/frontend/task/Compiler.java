@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.gradle.api.GradleException;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 /**
  * Compiler
@@ -22,32 +24,40 @@ public abstract class Compiler {
 
     private String fileRegex;
     protected final String outputExtension;
+    protected final Logger log;
 
     public Compiler(String outputExtension, String regex) {
+        this.log = Logging.getLogger(this.getClass());
         this.outputExtension = (outputExtension.startsWith(".")) ? outputExtension : ("." + outputExtension);
         this.fileRegex = regex;
     }
 
-    public void execute(File inputDirectory, File outputDirectory) {
+    public final void execute(File inputDirectory, File outputDirectory) {
         Path inputRootPath = inputDirectory.toPath();
         Path outputRootPath = outputDirectory.toPath();
         try {
             Set<Path> filePaths = getTargets(inputDirectory);
+            log.info("[task] Found {} file in [{}]", filePaths.size(), inputRootPath);
             filePaths.forEach(path -> {
                 Path outputPath = convetToOutputPath(inputRootPath, outputRootPath, path);
                 compileExecute(path, outputPath);
             });
         } catch (IOException e) {
-            throw new GradleException("target found error -> " + inputRootPath, e);
+            log.quiet("[task] Not found targets. {}", inputRootPath);
+            log.debug("[task] Error exception.", e);
         }
     }
 
-    protected void compileExecute(Path filePath, Path outputPath) {
+    protected final void compileExecute(Path filePath, Path outputPath) {
         Throwable exception = null;
         try {
+            log.info("[task] compile start. Target: {}", filePath);
             String content = compile(filePath);
             if (content != null) {
                 outputFile(outputPath.toFile(), content);
+                log.info("[task] compile finished. Output: {}", outputPath);
+            } else {
+                log.info("[task] content empty.");
             }
         } catch (Throwable t) {
             exception = t;
