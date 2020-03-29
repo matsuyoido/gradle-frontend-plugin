@@ -33,7 +33,7 @@ public class CssMinifyTask extends DefaultTask {
     @TaskAction
     public void minifyCss(IncrementalTaskInputs inputs) {
         PrefixCompiler prefixer = caniuse.map(v -> new PrefixCompiler(v.getCssSupports())).orElse(null);
-        CssMinifyCompiler compiler = new CssMinifyCompiler(lineEnd, MinifyType.SIMPLE);
+        CssMinifyCompiler compiler = new CssMinifyCompiler(lineEnd, MinifyType.YUI);
 
         this.settings.forEach(setting -> {
             setting.getOutputDirectory()
