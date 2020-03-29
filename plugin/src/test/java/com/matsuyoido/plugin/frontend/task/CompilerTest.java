@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.matsuyoido.plugin.PathUtil;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -16,7 +17,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * CompilerTest
  */
-@Deprecated // TaskのテストはPlugin の結合テストで担保することとする
+@Ignore("TaskのテストはPlugin の結合テストで担保することとする")
 public class CompilerTest {
 
     @Rule
