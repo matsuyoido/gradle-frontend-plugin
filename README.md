@@ -5,8 +5,8 @@ https://plugins.gradle.org/plugin/com.matsuyoido.frontend
 ## Feature
 
 1. sass compile by [jsass](https://gitlab.com/jsass/jsass)
-1. css minify by [ph-css](https://github.com/phax/ph-css)
-1. css add prefix by [CanIUse](https://github.com/Fyrd/caniuse) when minify css
+1. css minify by [YUI Compressor](https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor)
+1. css add prefix by [CanIUse](https://github.com/Fyrd/caniuse) and [ph-css](https://github.com/phax/ph-css)
 1. js minify by [YUI Compressor](https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor) or [Google Closure Compiler](https://github.com/google/closure-compiler)
 
 
