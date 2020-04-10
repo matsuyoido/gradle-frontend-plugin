@@ -25,11 +25,13 @@ public abstract class Compiler {
     private String fileRegex;
     protected final String outputExtension;
     protected final Logger log;
+    private final boolean continueIfErrorExist;
 
-    public Compiler(String outputExtension, String regex) {
+    public Compiler(String outputExtension, String regex, boolean continueIfErrorExist) {
         this.log = Logging.getLogger(this.getClass());
         this.outputExtension = (outputExtension.startsWith(".")) ? outputExtension : ("." + outputExtension);
         this.fileRegex = regex;
+        this.continueIfErrorExist = continueIfErrorExist;
     }
 
     public final void execute(File inputDirectory, File outputDirectory) {
@@ -43,7 +45,11 @@ public abstract class Compiler {
                 compileExecute(path, outputPath);
             });
         } catch (IOException e) {
-            log.quiet("[task] Not found targets. {}", inputRootPath);
+            if (this.continueIfErrorExist) {
+                log.debug("[task] Not found targets. {}", inputRootPath);
+            } else {
+                log.quiet("[task] Not found targets. {}", inputRootPath);
+            }
             log.debug("[task] Error exception.", e);
         }
     }
@@ -76,7 +82,11 @@ public abstract class Compiler {
      */
     protected void afterEvaluate(Path filePath, Path outputPath, Optional<Throwable> exception) {
         exception.ifPresent(t -> {
-            throw new GradleException(t.getMessage(), t);
+            if (continueIfErrorExist) {
+                log.error(t.getMessage(), t);
+            } else {
+                throw new GradleException(t.getMessage(), t);
+            }
         });
     }
 

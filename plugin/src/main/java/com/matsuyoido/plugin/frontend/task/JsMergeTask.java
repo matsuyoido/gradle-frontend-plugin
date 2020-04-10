@@ -22,10 +22,12 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
  */
 public class JsMergeTask extends DefaultTask {
 
+    private boolean continueIfErrorExist;
     private List<JavaScriptExtension> settings;
 
     @Inject
-    public JsMergeTask(List<JavaScriptExtension> settings) {
+    public JsMergeTask(boolean continueIfErrorExist, List<JavaScriptExtension> settings) {
+        this.continueIfErrorExist = continueIfErrorExist;
         this.settings = settings;
     }
 
@@ -43,7 +45,7 @@ public class JsMergeTask extends DefaultTask {
         private JsMinifyCompiler compiler;
 
         public MergeCompile() {
-            super(".min.js", "glob:*.js.map");
+            super(".min.js", "glob:*.js.map", continueIfErrorExist);
             compiler = new JsMinifyCompiler(null);
             objectMapper = new ObjectMapper();
         }

@@ -54,7 +54,7 @@ public class MainPlugin implements Plugin<Project> {
     private SassCompileTask setupSassCompileTask(RootExtension extension, TaskContainer taskFactory) {
         try {
             SassCompileTask task = taskFactory.create(SASS_TASK_NAME, SassCompileTask.class,
-                extension.getLineEndSetting(),
+                extension.getLineEndSetting(), extension.getSkipError(),
                 extension.getScssSetting(), 
                 ( (extension.getPrefixerSetting() == null) ? null : new PrefixerCanIUse(extension.getPrefixerSetting()) )
             );
@@ -71,7 +71,7 @@ public class MainPlugin implements Plugin<Project> {
     private CssMinifyTask setupCssMinifyTask(RootExtension extension, TaskContainer taskFactory) {
         try {
             CssMinifyTask task = taskFactory.create(CSS_MIN_TASK_NAME, CssMinifyTask.class,
-                extension.getLineEndSetting(),
+                extension.getLineEndSetting(), extension.getSkipError(),
                 extension.getCssSetting(),
                 ( (extension.getPrefixerSetting() == null) ? null : new PrefixerCanIUse(extension.getPrefixerSetting()) )
             );
@@ -86,7 +86,7 @@ public class MainPlugin implements Plugin<Project> {
 
 
     private JsMinifyTask setupJsMinifyTask(RootExtension extension, TaskContainer taskFactory) {
-        JsMinifyTask task = taskFactory.create(JS_MIN_TASK_NAME, JsMinifyTask.class, extension.getJSSetting());
+        JsMinifyTask task = taskFactory.create(JS_MIN_TASK_NAME, JsMinifyTask.class, extension.getSkipError(), extension.getJSSetting());
 
         task.setGroup(COMPILE_GROUP);
         task.setDescription("JS to min file.");
@@ -95,7 +95,7 @@ public class MainPlugin implements Plugin<Project> {
     }
 
     private JsMergeTask setupJsMergeTask(RootExtension extension, TaskContainer taskFactory) {
-        JsMergeTask task = taskFactory.create(JS_MERGE_TASK_NAME, JsMergeTask.class, extension.getJSSetting());
+        JsMergeTask task = taskFactory.create(JS_MERGE_TASK_NAME, JsMergeTask.class, extension.getSkipError(), extension.getJSSetting());
 
         task.setGroup(COMPILE_GROUP);
         task.setDescription("Many JS file to one min file.");

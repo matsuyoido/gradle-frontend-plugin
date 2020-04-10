@@ -16,10 +16,12 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 
 public class JsMinifyTask extends DefaultTask {
 
+    private boolean continueIfErrorExist;
     private List<JavaScriptExtension> settings;
 
     @Inject
-    public JsMinifyTask(List<JavaScriptExtension> settings) {
+    public JsMinifyTask(boolean continueIfErrorExist, List<JavaScriptExtension> settings) {
+        this.continueIfErrorExist = continueIfErrorExist;
         this.settings = settings;
     }
 
@@ -30,7 +32,7 @@ public class JsMinifyTask extends DefaultTask {
                    .mkdirs();
             MinifyType minifyType = setting.getMinifierType() == MinifierType.YUI ? MinifyType.YUI : MinifyType.GOOGLE;
             JsMinifyCompiler compiler = new JsMinifyCompiler(minifyType);
-            new Minifier("js", false){
+            new Minifier("js", false, continueIfErrorExist){
                 @Override
                 protected String compile(Path filePath) {
                     return compiler.compile(filePath.toFile());

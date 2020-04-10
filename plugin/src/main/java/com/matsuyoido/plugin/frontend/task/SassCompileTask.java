@@ -20,12 +20,14 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 
 public class SassCompileTask extends DefaultTask {
     private LineEnd lineEnd;
+    private boolean continueIfErrorExist;
     private List<ScssExtension> settings;
     private Optional<CanIUse> caniuse;
 
     @Inject
-    public SassCompileTask(LineEnd lineEnd, List<ScssExtension> settings, CanIUse caniuse) {
+    public SassCompileTask(LineEnd lineEnd, boolean continueIfErrorExist, List<ScssExtension> settings, CanIUse caniuse) {
         this.lineEnd = lineEnd;
+        this.continueIfErrorExist = continueIfErrorExist;
         this.settings = settings;
         this.caniuse = Optional.ofNullable(caniuse);
     }
@@ -40,7 +42,7 @@ public class SassCompileTask extends DefaultTask {
             setting.getOutputDirectory()
                    .mkdirs();
             String exportExtension = setting.isEnableMinify() ? ".min.css" : "css";
-            new Compiler(exportExtension, "glob:[!_]*.scss"){
+            new Compiler(exportExtension, "glob:[!_]*.scss", continueIfErrorExist){
                 @Override
                 protected String compile(Path filePath) {
                     String cssText = compiler.compile(filePath.toFile());

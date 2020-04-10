@@ -7,8 +7,8 @@ public abstract class Minifier extends Compiler {
 
     private boolean isDeleteBeforeCompileFile;
     
-    public Minifier(String extension, boolean isDeleteBeforeCompileFile) {
-        super(".min." + extension, "glob:*[!.min]." + extension);
+    public Minifier(String extension, boolean isDeleteBeforeCompileFile, boolean continueIfErrorExist) {
+        super(".min." + extension, "glob:*[!.min]." + extension, continueIfErrorExist);
         this.isDeleteBeforeCompileFile = isDeleteBeforeCompileFile;
     }
 

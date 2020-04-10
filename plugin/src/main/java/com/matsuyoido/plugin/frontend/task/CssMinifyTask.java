@@ -20,12 +20,14 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 public class CssMinifyTask extends DefaultTask {
 
     private LineEnd lineEnd;
+    private boolean continueIfErrorExist;
     private List<CssExtension> settings;
     private Optional<CanIUse> caniuse;
 
     @Inject
-    public CssMinifyTask(LineEnd lineEnd, List<CssExtension> settings, CanIUse caniuse) {
+    public CssMinifyTask(LineEnd lineEnd, boolean continueIfErrorExist, List<CssExtension> settings, CanIUse caniuse) {
         this.lineEnd = lineEnd;
+        this.continueIfErrorExist = continueIfErrorExist;
         this.settings = settings;
         this.caniuse = Optional.ofNullable(caniuse);
     }
@@ -38,7 +40,7 @@ public class CssMinifyTask extends DefaultTask {
         this.settings.forEach(setting -> {
             setting.getOutputDirectory()
                    .mkdirs();
-            new Minifier("css", false){
+            new Minifier("css", false, continueIfErrorExist){
                 @Override
                 protected String compile(Path filePath) {
                     if (setting.isAddPrefixer()) {
