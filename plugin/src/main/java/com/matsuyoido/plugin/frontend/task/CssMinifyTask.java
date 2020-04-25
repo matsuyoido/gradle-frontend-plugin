@@ -3,7 +3,6 @@ package com.matsuyoido.plugin.frontend.task;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -24,7 +23,7 @@ public class CssMinifyTask extends DefaultTask {
     private LineEnd lineEnd;
     private boolean continueIfErrorExist;
     private List<CssExtension> settings;
-    private Optional<CanIUse> caniuse;
+    private CanIUse caniuse;
 
     @Inject
     public CssMinifyTask() throws IOException {
@@ -32,12 +31,12 @@ public class CssMinifyTask extends DefaultTask {
         this.lineEnd = extension.getLineEndSetting();
         this.continueIfErrorExist = extension.getSkipError();
         this.settings = extension.getCssSetting();
-        this.caniuse = Optional.ofNullable(extension.getPrefixerSetting() == null ? null : new PrefixerCanIUse(extension.getPrefixerSetting()));
+        this.caniuse = new PrefixerCanIUse(getProject(), extension.getPrefixerSetting());
     }
 
     @TaskAction
     public void minifyCss(IncrementalTaskInputs inputs) {
-        PrefixCompiler prefixer = caniuse.map(v -> new PrefixCompiler(v.getCssSupports())).orElse(null);
+        PrefixCompiler prefixer = new PrefixCompiler(caniuse.getCssSupports());
         CssMinifyCompiler compiler = new CssMinifyCompiler(lineEnd, MinifyType.YUI);
 
         this.settings.forEach(setting -> {
@@ -47,9 +46,6 @@ public class CssMinifyTask extends DefaultTask {
                 @Override
                 protected String compile(Path filePath) {
                     if (setting.isAddPrefixer()) {
-                        if (!caniuse.isPresent()) {
-                            throw new IllegalStateException("Not Found caniuse data.");
-                        }
                         return compiler.compile(prefixer.addPrefix(filePath.toFile()));
                     } else {
                         return compiler.compile(filePath.toFile());

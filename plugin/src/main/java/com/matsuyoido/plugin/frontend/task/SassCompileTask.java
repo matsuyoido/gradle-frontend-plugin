@@ -3,7 +3,6 @@ package com.matsuyoido.plugin.frontend.task;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -24,7 +23,7 @@ public class SassCompileTask extends DefaultTask {
     private LineEnd lineEnd;
     private boolean continueIfErrorExist;
     private List<ScssExtension> settings;
-    private Optional<CanIUse> caniuse;
+    private CanIUse caniuse;
 
     @Inject
     public SassCompileTask() throws IOException {
@@ -32,14 +31,14 @@ public class SassCompileTask extends DefaultTask {
         this.lineEnd = extension.getLineEndSetting();
         this.continueIfErrorExist = extension.getSkipError();
         this.settings = extension.getScssSetting();
-        this.caniuse = Optional.ofNullable(extension.getPrefixerSetting() == null ? null : new PrefixerCanIUse(extension.getPrefixerSetting()));
+        this.caniuse = new PrefixerCanIUse(getProject(), extension.getPrefixerSetting());
     }
 
     @TaskAction
     public void compileSass(IncrementalTaskInputs inputs) {
         SassCompiler compiler = new SassCompiler(lineEnd);
         CssMinifyCompiler minifyCompiler = new CssMinifyCompiler(lineEnd, MinifyType.SIMPLE);
-        PrefixCompiler prefixerCompiler = caniuse.map(v -> new PrefixCompiler(v.getCssSupports())).orElse(null);
+        PrefixCompiler prefixerCompiler = new PrefixCompiler(this.caniuse.getCssSupports());
 
         this.settings.forEach(setting -> {
             setting.getOutputDirectory()
@@ -50,9 +49,6 @@ public class SassCompileTask extends DefaultTask {
                 protected String compile(Path filePath) {
                     String cssText = compiler.compile(filePath.toFile());
                     if (setting.isAddPrefixer()) {
-                        if (!caniuse.isPresent()) {
-                            throw new IllegalStateException("Not Found caniuse data.");
-                        }
                         cssText = prefixerCompiler.addPrefix(cssText);
                     }
                     if (setting.isEnableMinify()) {
