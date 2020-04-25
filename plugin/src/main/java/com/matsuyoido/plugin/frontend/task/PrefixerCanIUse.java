@@ -1,5 +1,6 @@
-package com.matsuyoido.plugin.frontend;
+package com.matsuyoido.plugin.frontend.task;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.matsuyoido.caniuse.Browser;
@@ -16,7 +17,8 @@ public class PrefixerCanIUse extends CanIUse {
 
     public PrefixerCanIUse(PrefixerExtension extension) throws IOException {
         this.extension = extension;
-        super.setup(extension.getCaniuseData());
+        File settingCaniuseFile = extension.getCaniuseData();
+        super.setup(settingCaniuseFile);
     }
 
     @Override

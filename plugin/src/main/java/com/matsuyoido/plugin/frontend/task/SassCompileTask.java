@@ -1,5 +1,6 @@
 package com.matsuyoido.plugin.frontend.task;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import com.matsuyoido.css.CssMinifyCompiler;
 import com.matsuyoido.css.MinifyType;
 import com.matsuyoido.css.PrefixCompiler;
 import com.matsuyoido.css.SassCompiler;
+import com.matsuyoido.plugin.frontend.extension.RootExtension;
 import com.matsuyoido.plugin.frontend.extension.ScssExtension;
 
 import org.gradle.api.DefaultTask;
@@ -25,11 +27,12 @@ public class SassCompileTask extends DefaultTask {
     private Optional<CanIUse> caniuse;
 
     @Inject
-    public SassCompileTask(LineEnd lineEnd, boolean continueIfErrorExist, List<ScssExtension> settings, CanIUse caniuse) {
-        this.lineEnd = lineEnd;
-        this.continueIfErrorExist = continueIfErrorExist;
-        this.settings = settings;
-        this.caniuse = Optional.ofNullable(caniuse);
+    public SassCompileTask() throws IOException {
+        RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
+        this.lineEnd = extension.getLineEndSetting();
+        this.continueIfErrorExist = extension.getSkipError();
+        this.settings = extension.getScssSetting();
+        this.caniuse = Optional.ofNullable(extension.getPrefixerSetting() == null ? null : new PrefixerCanIUse(extension.getPrefixerSetting()));
     }
 
     @TaskAction

@@ -1,5 +1,6 @@
 package com.matsuyoido.plugin.frontend.task;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import com.matsuyoido.css.CssMinifyCompiler;
 import com.matsuyoido.css.MinifyType;
 import com.matsuyoido.css.PrefixCompiler;
 import com.matsuyoido.plugin.frontend.extension.CssExtension;
+import com.matsuyoido.plugin.frontend.extension.RootExtension;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -25,11 +27,12 @@ public class CssMinifyTask extends DefaultTask {
     private Optional<CanIUse> caniuse;
 
     @Inject
-    public CssMinifyTask(LineEnd lineEnd, boolean continueIfErrorExist, List<CssExtension> settings, CanIUse caniuse) {
-        this.lineEnd = lineEnd;
-        this.continueIfErrorExist = continueIfErrorExist;
-        this.settings = settings;
-        this.caniuse = Optional.ofNullable(caniuse);
+    public CssMinifyTask() throws IOException {
+        RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
+        this.lineEnd = extension.getLineEndSetting();
+        this.continueIfErrorExist = extension.getSkipError();
+        this.settings = extension.getCssSetting();
+        this.caniuse = Optional.ofNullable(extension.getPrefixerSetting() == null ? null : new PrefixerCanIUse(extension.getPrefixerSetting()));
     }
 
     @TaskAction

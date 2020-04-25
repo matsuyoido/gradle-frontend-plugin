@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend;
+package com.matsuyoido.plugin.frontend.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

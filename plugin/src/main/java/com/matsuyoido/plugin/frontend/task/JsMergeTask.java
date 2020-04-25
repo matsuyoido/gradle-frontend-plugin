@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.matsuyoido.js.JsMinifyCompiler;
 import com.matsuyoido.plugin.frontend.extension.JavaScriptExtension;
+import com.matsuyoido.plugin.frontend.extension.RootExtension;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -26,9 +27,10 @@ public class JsMergeTask extends DefaultTask {
     private List<JavaScriptExtension> settings;
 
     @Inject
-    public JsMergeTask(boolean continueIfErrorExist, List<JavaScriptExtension> settings) {
-        this.continueIfErrorExist = continueIfErrorExist;
-        this.settings = settings;
+    public JsMergeTask() {
+        RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
+        this.continueIfErrorExist = extension.getSkipError();
+        this.settings = extension.getJSSetting();
     }
 
     @TaskAction

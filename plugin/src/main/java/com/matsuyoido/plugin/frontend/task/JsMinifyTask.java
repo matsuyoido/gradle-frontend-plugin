@@ -9,6 +9,7 @@ import com.matsuyoido.js.JsMinifyCompiler;
 import com.matsuyoido.js.MinifyType;
 import com.matsuyoido.plugin.frontend.extension.JavaScriptExtension;
 import com.matsuyoido.plugin.frontend.extension.MinifierType;
+import com.matsuyoido.plugin.frontend.extension.RootExtension;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
@@ -20,9 +21,10 @@ public class JsMinifyTask extends DefaultTask {
     private List<JavaScriptExtension> settings;
 
     @Inject
-    public JsMinifyTask(boolean continueIfErrorExist, List<JavaScriptExtension> settings) {
-        this.continueIfErrorExist = continueIfErrorExist;
-        this.settings = settings;
+    public JsMinifyTask() {
+        RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
+        this.continueIfErrorExist = extension.getSkipError();
+        this.settings = extension.getJSSetting();
     }
 
     @TaskAction
