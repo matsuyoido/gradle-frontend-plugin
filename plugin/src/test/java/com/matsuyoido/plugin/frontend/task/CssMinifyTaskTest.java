@@ -3,6 +3,7 @@ package com.matsuyoido.plugin.frontend.task;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.io.IOException;
 // import java.io.File;
 // import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class CssMinifyTaskTest {
     }
 
     @Test
-    public void minifyCss() {
+    public void minifyCss() throws IOException {
         task.minifyCss(inputs);
 
         assertThat(tempFolder.getRoot().listFiles()).allSatisfy(file -> {

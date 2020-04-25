@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.matsuyoido.LineEnd;
 import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.css.CssMinifyCompiler;
@@ -25,8 +23,7 @@ public class CssMinifyTask extends DefaultTask {
     private List<CssExtension> settings;
     private CanIUse caniuse;
 
-    @Inject
-    public CssMinifyTask() throws IOException {
+    void setupTask() throws IOException {
         RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
         this.lineEnd = extension.getLineEndSetting();
         this.continueIfErrorExist = extension.getSkipError();
@@ -35,7 +32,8 @@ public class CssMinifyTask extends DefaultTask {
     }
 
     @TaskAction
-    public void minifyCss(IncrementalTaskInputs inputs) {
+    public void minifyCss(IncrementalTaskInputs inputs) throws IOException {
+        setupTask();
         PrefixCompiler prefixer = new PrefixCompiler(caniuse.getCssSupports());
         CssMinifyCompiler compiler = new CssMinifyCompiler(lineEnd, MinifyType.YUI);
 

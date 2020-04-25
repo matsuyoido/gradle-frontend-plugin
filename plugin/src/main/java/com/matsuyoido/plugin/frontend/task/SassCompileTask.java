@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import com.matsuyoido.LineEnd;
 import com.matsuyoido.caniuse.CanIUse;
 import com.matsuyoido.css.CssMinifyCompiler;
@@ -25,8 +23,7 @@ public class SassCompileTask extends DefaultTask {
     private List<ScssExtension> settings;
     private CanIUse caniuse;
 
-    @Inject
-    public SassCompileTask() throws IOException {
+    void setupTask() throws IOException {
         RootExtension extension = getProject().getExtensions().getByType(RootExtension.class);
         this.lineEnd = extension.getLineEndSetting();
         this.continueIfErrorExist = extension.getSkipError();
@@ -35,7 +32,8 @@ public class SassCompileTask extends DefaultTask {
     }
 
     @TaskAction
-    public void compileSass(IncrementalTaskInputs inputs) {
+    public void compileSass(IncrementalTaskInputs inputs) throws IOException {
+        setupTask();
         SassCompiler compiler = new SassCompiler(lineEnd);
         CssMinifyCompiler minifyCompiler = new CssMinifyCompiler(lineEnd, MinifyType.SIMPLE);
         PrefixCompiler prefixerCompiler = new PrefixCompiler(this.caniuse.getCssSupports());
