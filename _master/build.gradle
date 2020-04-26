@@ -1,6 +1,7 @@
 buildscript {
     ext {
         pluginVersion = '2.0.0'
+        jarName = 'matsuyoido-frontend-gradle-plugin'
         gradleVersion = '5.5.1'
         jdkVersion = JavaVersion.VERSION_1_8
         // jdkVersion = JavaVersion.VERSION_11
@@ -15,6 +16,7 @@ buildscript {
     }
     dependencies {
         classpath "com.gradle.publish:plugin-publish-plugin:0.11.0"
+        classpath "gradle.plugin.com.matsuyoido:plugin:2.0.0"
     }
 }
 
@@ -84,7 +86,7 @@ project(':plugin') {
 
     version = "$pluginVersion"
     group = 'com.matsuyoido'
-    jar.baseName = 'matsuyoido-frontend-gradle-plugin'
+    jar.baseName = "$jarName"
 
     apply plugin: 'java-gradle-plugin'
     gradlePlugin {
