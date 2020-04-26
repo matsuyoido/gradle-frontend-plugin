@@ -22,6 +22,8 @@ public class Download {
     public File execute(URL url, File outputFile) throws IOException {
         outputFile.getParentFile().mkdirs();
         outputFile.createNewFile();
+        outputFile.setReadable(true);
+        outputFile.setWritable(true);
 
         log.lifecycle("[task] download file from {}...", url);
         HttpURLConnection http = (HttpURLConnection) url.openConnection();

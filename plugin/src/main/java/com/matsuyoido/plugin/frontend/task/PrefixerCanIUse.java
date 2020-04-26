@@ -33,10 +33,13 @@ public class PrefixerCanIUse extends CanIUse {
                 File dataJsonFile = rootProjectDir.resolve("gradle/plugin/data.json").toFile();
                 if (!dataJsonFile.exists()) {
                     settingCaniuseFile = downloadDataJson(dataJsonFile);
+                } else {
+                    settingCaniuseFile = dataJsonFile;
                 }
             }
             super.setup(settingCaniuseFile);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            project.getLogger().warn("[task] file '{}' load failed.", settingCaniuseFile);
             super.setup(loadDataJsonForJar());
         }
     }
