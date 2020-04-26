@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        pluginVersion = '2.0.0'
+        pluginVersion = '2.0.1'
         jarName = 'matsuyoido-frontend-gradle-plugin'
         gradleVersion = '5.5.1'
         jdkVersion = JavaVersion.VERSION_1_8
@@ -110,5 +110,52 @@ project(':plugin') {
                 version = "$pluginVersion"
             }
         }
+        mavenCoordinates {
+            groupId = "com.matsuyoido"
+            artifactId = "frontend-plugin"
+        }
     }
 }
+
+
+project(':example') {
+    apply plugin: "com.matsuyoido.frontend"
+
+    frontend {
+    setting {
+        lineEnding = 'linux'
+        prefixer {
+        ie = "11"
+        edge = "44"
+        chrome = "76"
+        firefox = "70"
+        safari = "all"
+        ios = "all"
+        android = "all"
+        }
+    }
+    style {
+        scss {
+        inDir = file("$projectDir/src/main/sass")
+        outDir = file("$projectDir/temp/css")
+        }
+        scss {
+        inDir = file("$projectDir/src/main/sass")
+        outDir = file("$projectDir/src/main/resources/static/css")
+        }
+        css {
+        inDir = file("$projectDir/temp/css")
+        outDir = file("$projectDir/src/main/resources/static/css")
+        addPrefixer = true
+        }
+    }
+    script {
+        js {
+            inDir = file("$projectDir/src/main/resources/static/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+            type = 'yahoo'
+        }
+    }
+    }
+}
+
