@@ -16,6 +16,11 @@
             "label": "check dependencies",
             "type": "shell",
             "command": "cd _master; ./gradlew.bat :plugin:dependencies"
+        },
+        {
+            "label": "delete local branch not exist.",
+            "type": "shell",
+            "command": "git fetch --prune"
         }
     ]
 }

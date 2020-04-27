@@ -1,21 +1,28 @@
 package com.matsuyoido.plugin.frontend.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
-// import java.io.File;
-import java.util.ArrayList;
-// import java.util.Collections;
-import java.util.List;
 
-import com.matsuyoido.caniuse.SupportData;
-import com.matsuyoido.caniuse.SupportLevel;
-import com.matsuyoido.caniuse.SupportStatus;
-import com.matsuyoido.caniuse.VersionPrefixer;
+import java.io.File;
+import java.io.IOException;
+// import java.io.File;
+// import java.util.ArrayList;
+import java.util.Arrays;
+// import java.util.Collections;
+// import java.util.List;
+
+import com.matsuyoido.LineEnd;
+// import com.matsuyoido.caniuse.SupportData;
+// import com.matsuyoido.caniuse.SupportLevel;
+// import com.matsuyoido.caniuse.SupportStatus;
+// import com.matsuyoido.caniuse.VersionPrefixer;
 // import com.matsuyoido.plugin.LineEnd;
 import com.matsuyoido.plugin.PathUtil;
+import com.matsuyoido.plugin.frontend.extension.CssExtension;
 
 import org.gradle.api.tasks.incremental.IncrementalTaskInputs;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -23,7 +30,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * CssMinifyTaskTest
  */
-@Deprecated // TaskのテストはPlugin の結合テストで担保することとする
+@Ignore("TaskのテストはPlugin の結合テストで担保することとする")
 public class CssMinifyTaskTest {
 
     @Rule
@@ -32,20 +39,23 @@ public class CssMinifyTaskTest {
     private static final String CSS_FILE_DIR = PathUtil.classpathResourcePath("minCompile");
 
     private IncrementalTaskInputs inputs = new MockIncrementalTaskInputs();
-    private CssMinifyTask task = ProjectBuilder.builder()
-                                               .build()
-                                               .getTasks().create("test", CssMinifyTask.class);
+    private CssMinifyTask task;
 
     @Before
     public void setup() {
-        // task.setCssFileDirectory(new File(CSS_FILE_DIR))
-        //     .setOutputFileDirectory(tempFolder.getRoot())
-        //     .setLineEnd(LineEnd.WINDOWS)
-        //     .setDeleteBeforeCompileFile(false);
+        CssExtension extension = new CssExtension();
+        extension.setInDir(new File(CSS_FILE_DIR));
+        extension.setAddPrefixer(true);
+        extension.setOutDir(tempFolder.getRoot());
+
+        task = ProjectBuilder.builder()
+                             .build()
+                             .getTasks().create("test", CssMinifyTask.class,
+             LineEnd.WINDOWS, Arrays.asList(extension), null);
     }
 
     @Test
-    public void minifyCss() {
+    public void minifyCss() throws IOException {
         task.minifyCss(inputs);
 
         assertThat(tempFolder.getRoot().listFiles()).allSatisfy(file -> {
@@ -87,16 +97,16 @@ public class CssMinifyTaskTest {
         }).hasSize(2);
     }
 
-    private SupportData flexSupport() {
-        SupportStatus chromeStatus = new SupportStatus("chrome");
-        chromeStatus.addSupportVersion(new VersionPrefixer("10", "webkit"), SupportLevel.ENABLE_WITH_PREFIX);
+    // private SupportData flexSupport() {
+    //     SupportStatus chromeStatus = new SupportStatus("chrome");
+    //     chromeStatus.addSupportVersion(new VersionPrefixer("10", "webkit"), SupportLevel.ENABLE_WITH_PREFIX);
 
-        List<SupportStatus> supports = new ArrayList<>();
-        supports.add(chromeStatus);
+    //     List<SupportStatus> supports = new ArrayList<>();
+    //     supports.add(chromeStatus);
 
-        SupportData support = new SupportData();
-        support.setKey("flexbox");
-        support.setSupports(supports);
-        return support;
-    }
+    //     SupportData support = new SupportData();
+    //     support.setKey("flexbox");
+    //     support.setSupports(supports);
+    //     return support;
+    // }
 }

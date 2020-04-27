@@ -246,6 +246,42 @@ public class MainPluginTest {
     }
 
     @Test
+    public void sassCompileTask_andMinify_executeTwice() throws IOException {
+        File sassDir = new File(getProjectDir(), "src/main/sass");
+        File cssDir = new File(getProjectDir(), "src/main/resources/static/css");
+
+        sassDir.mkdirs();
+        cssDir.mkdirs();
+        File sassFile = new File(sassDir, "child.scss");
+        File notCompileFile = new File(sassDir, "_notCompile.scss");
+        sassFile.createNewFile();
+        notCompileFile.createNewFile();
+
+        setup(
+            "frontend {",
+            "  style {",
+            "    scss {",
+            "      inDir = file(\"$projectDir/src/main/sass\")",
+            "      outDir = file(\"$projectDir/src/main/resources/static/css\")",
+            "      enableMinify = true",
+            "    }",
+            "  }",
+           "}"
+        );
+
+        BuildResult result = run("sassCompile");
+
+        assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(cssDir.list()).hasSize(1)
+                                 .containsOnly("child.min.css");
+        result = run("sassCompile");
+
+        assertThat(result.task(":sassCompile").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(cssDir.list()).hasSize(1)
+                                 .containsOnly("child.min.css");
+    }
+
+    @Test
     public void sassCompileTask_andMinify_onlyExistMinCss() throws IOException {
         File sassDir1 = new File(getProjectDir(), "src/main/sass/custom");
         File cssDir = new File(getProjectDir(), "src/main/resources/static/css");

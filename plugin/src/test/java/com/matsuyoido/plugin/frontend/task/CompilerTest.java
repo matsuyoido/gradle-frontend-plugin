@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.matsuyoido.plugin.PathUtil;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -16,7 +17,7 @@ import org.junit.rules.TemporaryFolder;
 /**
  * CompilerTest
  */
-@Deprecated // TaskのテストはPlugin の結合テストで担保することとする
+@Ignore("TaskのテストはPlugin の結合テストで担保することとする")
 public class CompilerTest {
 
     @Rule
@@ -25,7 +26,7 @@ public class CompilerTest {
     @Test
     public void getTargets_startsWith_Exclude() throws IOException {
         // case
-        Compiler compiler = new Compiler("css", "glob:[!_]*.scss") {
+        Compiler compiler = new Compiler("css", "glob:[!_]*.scss", false) {
             @Override
             protected String compile(Path filePath) {
                 return null;
@@ -42,7 +43,7 @@ public class CompilerTest {
 
     @Test
     public void getTargets_minFileExclude() throws IOException {
-        Compiler compiler = new Compiler("css", "glob:*[!.min].css") {
+        Compiler compiler = new Compiler("css", "glob:*[!.min].css", false) {
             @Override
             protected String compile(Path filePath) {
                 return null;
@@ -93,7 +94,7 @@ public class CompilerTest {
     private class TestCompiler extends Compiler {
 
         public TestCompiler() {
-            super("tmp", "");
+            super("tmp", "", false);
         }
 
         @Override

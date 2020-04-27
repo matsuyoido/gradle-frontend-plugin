@@ -1,5 +1,7 @@
 buildscript {
     ext {
+        pluginVersion = '2.0.1'
+        jarName = 'matsuyoido-frontend-gradle-plugin'
         gradleVersion = '5.5.1'
         jdkVersion = JavaVersion.VERSION_1_8
         // jdkVersion = JavaVersion.VERSION_11
@@ -13,7 +15,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.10.1"
+        classpath "com.gradle.publish:plugin-publish-plugin:0.11.0"
+        classpath "com.matsuyoido:frontend-plugin:2.0.1"
     }
 }
 
@@ -81,9 +84,9 @@ project(':plugin') {
         implementation 'org.webjars.npm:caniuse-db:1.0.30000748'
     }
 
-    version = '2.0.0'
+    version = "$pluginVersion"
     group = 'com.matsuyoido'
-    jar.baseName = 'matsuyoido-frontend-gradle-plugin'
+    jar.baseName = "$jarName"
 
     apply plugin: 'java-gradle-plugin'
     gradlePlugin {
@@ -91,8 +94,6 @@ project(':plugin') {
             frontEndPlugin {
                 id = 'com.matsuyoido.frontend'
                 implementationClass = 'com.matsuyoido.plugin.frontend.MainPlugin'
-                displayName = 'This plugin support preparation of deliverables.'
-                description = 'scss -> css | css -> min.css | js -> min.js'
             }
         }
     }
@@ -100,7 +101,61 @@ project(':plugin') {
     apply plugin: 'com.gradle.plugin-publish'
     pluginBundle {
         website = 'https://github.com/matsuyoido/gradle-frontend-plugin' // temporary url
-        vcsUrl = 'https://github.com/matsuyoido/gradle-frontend-plugin'
-        tags = ['preprocessor', 'scss', 'minify']
+        plugins {
+            frontEndPlugin {
+                displayName = 'This plugin support preparation of deliverables.'
+                description = 'scss -> css | css -> min.css | js -> min.js'
+                vcsUrl = 'https://github.com/matsuyoido/gradle-frontend-plugin'
+                tags = ['preprocessor', 'scss', 'minify']
+                version = "$pluginVersion"
+            }
+        }
+        mavenCoordinates {
+            groupId = "com.matsuyoido"
+            artifactId = "frontend-plugin"
+        }
     }
 }
+
+
+project(':example') {
+    apply plugin: "com.matsuyoido.frontend"
+
+    frontend {
+    setting {
+        lineEnding = 'linux'
+        prefixer {
+        ie = "11"
+        edge = "44"
+        chrome = "76"
+        firefox = "70"
+        safari = "all"
+        ios = "all"
+        android = "all"
+        }
+    }
+    style {
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/temp/css")
+        }
+        scss {
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
+        }
+        css {
+            inDir = file("$projectDir/temp/css")
+            outDir = file("$projectDir/src/main/resources/static/css")
+            addPrefixer = true
+        }
+    }
+    script {
+        js {
+            inDir = file("$projectDir/src/main/resources/static/js")
+            outDir = file("$projectDir/src/main/resources/static/js")
+            type = 'yahoo'
+        }
+    }
+    }
+}
+

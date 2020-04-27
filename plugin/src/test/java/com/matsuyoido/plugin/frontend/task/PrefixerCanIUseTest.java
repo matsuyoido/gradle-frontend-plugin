@@ -1,4 +1,4 @@
-package com.matsuyoido.plugin.frontend;
+package com.matsuyoido.plugin.frontend.task;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,6 +10,7 @@ import com.matsuyoido.caniuse.SupportData;
 import com.matsuyoido.plugin.PathUtil;
 import com.matsuyoido.plugin.frontend.extension.PrefixerExtension;
 
+import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.Test;
 
 /**
@@ -23,7 +24,19 @@ public class PrefixerCanIUseTest {
         extension.setCaniuseData(new File(PathUtil.classpathResourcePath("caniuse/data.json")));
         extension.setChrome("all");
 
-        PrefixerCanIUse caniuse = new PrefixerCanIUse(extension);
+        PrefixerCanIUse caniuse = new PrefixerCanIUse(ProjectBuilder.builder().build(), extension);
+
+        List<SupportData> result = caniuse.getCssSupports();
+
+        assertThat(result).isNotEmpty();
+    }
+    
+    @Test
+    public void getCssSupport_notSettingCaniue() throws IOException {
+        PrefixerExtension extension = new PrefixerExtension();
+        extension.setChrome("all");
+
+        PrefixerCanIUse caniuse = new PrefixerCanIUse(ProjectBuilder.builder().build(), extension);
 
         List<SupportData> result = caniuse.getCssSupports();
 

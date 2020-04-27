@@ -1,6 +1,12 @@
-package com.matsuyoido.plugin.frontend;
+package com.matsuyoido.plugin.frontend.task;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import com.matsuyoido.caniuse.Browser;
 import com.matsuyoido.caniuse.CanIUse;
@@ -8,18 +14,58 @@ import com.matsuyoido.caniuse.SupportLevel;
 import com.matsuyoido.caniuse.Version;
 import com.matsuyoido.plugin.frontend.extension.PrefixerExtension;
 
+import org.gradle.api.Project;
+
 /**
  * PrefixerCanIUse
  */
 public class PrefixerCanIUse extends CanIUse {
     private final PrefixerExtension extension;
 
-    public PrefixerCanIUse(PrefixerExtension extension) throws IOException {
+    PrefixerCanIUse(Project project, PrefixerExtension extension) throws IOException {
         this.extension = extension;
-        super.setup(extension.getCaniuseData());
+        File settingCaniuseFile = extension.getCaniuseData();
+
+        try {
+            if (settingCaniuseFile == null || !settingCaniuseFile.exists() || !settingCaniuseFile.isFile()
+                    || !settingCaniuseFile.canRead()) {
+                Path rootProjectDir = project.getRootProject().getProjectDir().toPath();
+                File dataJsonFile = rootProjectDir.resolve("gradle/plugin/data.json").toFile();
+                if (!dataJsonFile.exists()) {
+                    settingCaniuseFile = downloadDataJson(dataJsonFile);
+                } else {
+                    settingCaniuseFile = dataJsonFile;
+                }
+            }
+            super.setup(settingCaniuseFile);
+        } catch (Exception e) {
+            project.getLogger().warn("[task] file '{}' load failed.", settingCaniuseFile);
+            super.setup(loadDataJsonForJar());
+        }
     }
 
-    @Override
+    private File downloadDataJson(File jsonFile) throws IOException {
+        String repoUrl = "https://github.com/Fyrd/caniuse/blob/master/data.json";
+        URL url = new URL(repoUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob", ""));
+        
+        return new Download().execute(url, jsonFile);
+    }
+
+    private File loadDataJsonForJar() throws IOException {
+        Path jsonFile = Files.createTempFile("plugin-", ".json");
+        try (InputStream in = getClass().getResourceAsStream("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")) {
+            Files.copy(in, jsonFile, StandardCopyOption.REPLACE_EXISTING);
+            File result = jsonFile.toFile();
+            result.deleteOnExit();
+            return result;
+        }
+        /*
+        new File(getClass().getResource("/META-INF/resources/webjars/caniuse-db/1.0.30000748/data.json")
+                           .toExternalForm())
+        */
+    }
+
+	@Override
     protected boolean isAddSupport(Browser browser) {
         switch(browser.getAgent()) {
             case "ie": 

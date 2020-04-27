@@ -76,6 +76,7 @@ public class RootExtension implements Serializable {
         private final Project project;
 
         private LineEnd lineEnding;
+        private Boolean skipError;
         PrefixerExtension prefixer;
 
         public SettingExtension(Project project) {
@@ -100,6 +101,9 @@ public class RootExtension implements Serializable {
                 }
             }
         }
+        public void setSkipError(boolean isSkip) {
+            this.skipError = isSkip;
+        }
         public void prefixer(Closure<PrefixerExtension> closure) {
             this.project.configure(this.prefixer, closure);
         }
@@ -107,6 +111,9 @@ public class RootExtension implements Serializable {
         
         LineEnd getLineEnding() {
             return (this.lineEnding == null) ? LineEnd.PLATFORM : this.lineEnding;
+        }
+        boolean isSkipError() {
+            return (this.skipError == null) ? true : this.skipError;
         }
     }
 
@@ -161,6 +168,9 @@ public class RootExtension implements Serializable {
     //#region getter
     public LineEnd getLineEndSetting() {
         return this.setting.getLineEnding();
+    }
+    public boolean getSkipError() {
+        return this.setting.isSkipError();
     }
     public PrefixerExtension getPrefixerSetting() {
         return this.setting.prefixer;

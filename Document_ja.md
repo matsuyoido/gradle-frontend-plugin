@@ -72,9 +72,8 @@ frontend {
 frontend {
     setting {
         prefixer {
-            // 1. https://github.com/Fyrd/caniuse/blob/master/data.json からファイルを取得する
-            // 2. 取得したファイルを指定する
-            caniuseData = file("$rootDir/caniuse/data.json")
+            // (ダウンロード可能 & 最新でOKであれば、最新のファイルをダウンロードするため、指定不要)
+            // caniuseData = file("$rootDir/caniuse/data.json")
             // サポートするためのバージョンを指定する(全部対象にする場合は、 all を使う)
             ie = ""
             edge = ""

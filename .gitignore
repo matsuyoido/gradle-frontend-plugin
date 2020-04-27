@@ -13,3 +13,6 @@ bin
 
 ### VS Code ###
 settings.json
+
+### gradle task ###
+**/plugin/data.json
