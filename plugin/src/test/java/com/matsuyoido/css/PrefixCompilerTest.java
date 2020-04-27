@@ -147,4 +147,54 @@ public class PrefixCompilerTest {
                 .containsOnlyOnce("-webkit-flex:auto")
         ;
     }
+
+    @Test
+    public void addPrefix_textCombineUpright() {
+        String css = String.join(System.lineSeparator(),
+        "span {",
+            "text-combine-upright: all;",
+        "}"
+        );
+        assertThat(prefixer.addPrefix(css))
+                .containsOnlyOnce("text-combine-upright:all;")
+                .containsOnlyOnce("-ms-text-combine-horizontal:all;")
+                .containsOnlyOnce("-webkit-text-combine:horizontal;")
+        ;
+
+        css = String.join(System.lineSeparator(),
+        "span {",
+            "text-combine-upright: all;",
+            "-ms-text-combine-horizontal: all;",
+            "-webkit-text-combine: horizontal;",
+        "}"
+        );
+        assertThat(prefixer.addPrefix(css))
+                .containsOnlyOnce("text-combine-upright:all;")
+                .containsOnlyOnce("-ms-text-combine-horizontal:all;")
+                .containsOnlyOnce("-webkit-text-combine:horizontal;")
+        ;
+
+        css = String.join(System.lineSeparator(),
+        "span {",
+            "-ms-text-combine-horizontal: all;",
+        "}"
+        );
+        assertThat(prefixer.addPrefix(css))
+                .containsOnlyOnce("text-combine-upright:all;")
+                .containsOnlyOnce("-ms-text-combine-horizontal:all;")
+                .containsOnlyOnce("-webkit-text-combine:horizontal;")
+        ;
+
+        css = String.join(System.lineSeparator(),
+        "span {",
+            "-webkit-text-combine: horizontal;",
+        "}"
+        );
+        assertThat(prefixer.addPrefix(css))
+                .containsOnlyOnce("text-combine-upright:all;")
+                .containsOnlyOnce("-ms-text-combine-horizontal:all;")
+                .containsOnlyOnce("-webkit-text-combine:horizontal;")
+        ;
+    }
+
 }
