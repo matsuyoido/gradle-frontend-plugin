@@ -16,7 +16,7 @@ buildscript {
     }
     dependencies {
         classpath "com.gradle.publish:plugin-publish-plugin:0.11.0"
-        classpath "gradle.plugin.com.matsuyoido:plugin:2.0.0"
+        classpath "com.matsuyoido:frontend-plugin:2.0.1"
     }
 }
 
@@ -136,17 +136,17 @@ project(':example') {
     }
     style {
         scss {
-        inDir = file("$projectDir/src/main/sass")
-        outDir = file("$projectDir/temp/css")
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/temp/css")
         }
         scss {
-        inDir = file("$projectDir/src/main/sass")
-        outDir = file("$projectDir/src/main/resources/static/css")
+            inDir = file("$projectDir/src/main/sass")
+            outDir = file("$projectDir/src/main/resources/static/css")
         }
         css {
-        inDir = file("$projectDir/temp/css")
-        outDir = file("$projectDir/src/main/resources/static/css")
-        addPrefixer = true
+            inDir = file("$projectDir/temp/css")
+            outDir = file("$projectDir/src/main/resources/static/css")
+            addPrefixer = true
         }
     }
     script {
