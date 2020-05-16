@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        pluginVersion = '2.0.1'
+        pluginVersion = '2.0.2'
         jarName = 'matsuyoido-frontend-gradle-plugin'
         gradleVersion = '5.5.1'
         jdkVersion = JavaVersion.VERSION_1_8
