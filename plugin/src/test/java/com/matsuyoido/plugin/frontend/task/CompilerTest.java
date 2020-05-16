@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Set;
 
 import com.matsuyoido.plugin.PathUtil;
@@ -26,7 +27,7 @@ public class CompilerTest {
     @Test
     public void getTargets_startsWith_Exclude() throws IOException {
         // case
-        Compiler compiler = new Compiler("css", "glob:[!_]*.scss", false) {
+        Compiler compiler = new Compiler("css", "glob:[!_]*.scss", null, false) {
             @Override
             protected String compile(Path filePath) {
                 return null;
@@ -43,7 +44,7 @@ public class CompilerTest {
 
     @Test
     public void getTargets_minFileExclude() throws IOException {
-        Compiler compiler = new Compiler("css", "glob:*[!.min].css", false) {
+        Compiler compiler = new Compiler("css", "glob:*.css", Collections.singleton("glob:*.min.css"), false) {
             @Override
             protected String compile(Path filePath) {
                 return null;
@@ -94,7 +95,7 @@ public class CompilerTest {
     private class TestCompiler extends Compiler {
 
         public TestCompiler() {
-            super("tmp", "", false);
+            super("tmp", "", null, false);
         }
 
         @Override

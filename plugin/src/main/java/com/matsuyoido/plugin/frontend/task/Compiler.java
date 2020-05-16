@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.gradle.api.GradleException;
@@ -22,15 +23,24 @@ import org.gradle.api.logging.Logging;
  */
 public abstract class Compiler {
 
-    private String fileRegex;
+    private Predicate<Path> targetFilter;
+    private Predicate<Path> excludeFilter;
     protected final String outputExtension;
     protected final Logger log;
     private final boolean continueIfErrorExist;
 
-    public Compiler(String outputExtension, String regex, boolean continueIfErrorExist) {
+    public Compiler(String outputExtension, String regex, Set<String> excludeRegex, boolean continueIfErrorExist) {
         this.log = Logging.getLogger(this.getClass());
         this.outputExtension = (outputExtension.startsWith(".")) ? outputExtension : ("." + outputExtension);
-        this.fileRegex = regex;
+        PathMatcher targetMatcher = FileSystems.getDefault().getPathMatcher(regex);
+        this.targetFilter = path -> targetMatcher.matches(path);
+        this.excludeFilter = path -> true;
+        if (excludeRegex != null && !excludeRegex.isEmpty()) {
+            for (String excludePattern : excludeRegex) {
+                PathMatcher excludeMatcher = FileSystems.getDefault().getPathMatcher(excludePattern);
+                this.excludeFilter = excludeFilter.and(path -> !excludeMatcher.matches(path));
+            }
+        }
         this.continueIfErrorExist = continueIfErrorExist;
     }
 
@@ -91,10 +101,13 @@ public abstract class Compiler {
     }
 
     protected Set<Path> getTargets(File inputDirectory) throws IOException {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher(this.fileRegex);
+        Path directoryRoot = inputDirectory.toPath();
         return Files
-                .find(inputDirectory.toPath(), Integer.MAX_VALUE,
-                        (filePath, fileAttr) -> fileAttr.isRegularFile() && matcher.matches(filePath.getFileName()))
+                .find(directoryRoot, Integer.MAX_VALUE,
+                (filePath, fileAttr) -> {
+                    Path relativeFilePath = directoryRoot.relativize(filePath);
+                    return fileAttr.isRegularFile() && targetFilter.test(filePath.getFileName()) && excludeFilter.test(relativeFilePath);
+                })
                 .collect(Collectors.toSet());
     }
 

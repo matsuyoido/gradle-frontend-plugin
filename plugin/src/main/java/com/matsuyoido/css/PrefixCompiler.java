@@ -139,10 +139,10 @@ public class PrefixCompiler {
         // already added prefix remove
         Map<String, CSSDeclaration> declarations = new HashMap<>();
         rule.getAllDeclarations().forEach(declaration -> {
-            String property = declaration.getProperty();
-            declarations.put(removedPrefixer.apply(property), declaration);
+            CSSDeclaration declarationValue = checkCustomProperty(declaration);
+            String property = removedPrefixer.apply(declarationValue.getProperty());
+            declarations.put(property, declarationValue);
         });
-
         declarations.values().forEach(declaration -> {
             createPrefixedDeclaration(declaration).forEach(newCss::addDeclaration);
         });
@@ -190,7 +190,9 @@ public class PrefixCompiler {
             }
             return prefixerDeclaration.values();
         }
-        return Collections.singleton(declaration);
+
+        Collection<CSSDeclaration> customDeclarations = customPrefixDeclaration(cssProperty, cssValue);
+        return customDeclarations.isEmpty() ? Collections.singleton(declaration) : customDeclarations;
     }
 
     private Function<String, String> removedPrefixer = val -> {
@@ -216,6 +218,33 @@ public class PrefixCompiler {
         return (entry.getValue().name().endsWith("_WITH_PREFIX")) ?
             entry.getKey().getPrefixer() : null;
     }
+
+    //#region caniuse 以外の自流設定
+    private CSSDeclaration checkCustomProperty(CSSDeclaration declaration) {
+        String cssProperty = declaration.getProperty();
+        if (cssProperty.endsWith("text-combine-horizontal")) { 
+            return new CSSDeclaration("text-combine-upright", declaration.getExpression());
+        } else if (cssProperty.endsWith("text-combine")) {
+            return new CSSDeclaration("text-combine-upright",
+                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple("all")));
+        }
+        return declaration;
+    }
+    private Collection<CSSDeclaration> customPrefixDeclaration(String cssProperty, String cssValue) {
+        List<CSSDeclaration> declarations = new ArrayList<>();
+        if (cssProperty.equals("text-combine-upright") && (cssValue.equals("all") || cssValue.startsWith("digits"))) {
+            declarations.add(new CSSDeclaration("text-combine-upright",
+                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple(cssValue))));
+            declarations.add(new CSSDeclaration("-ms-text-combine-horizontal",
+                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple(cssValue))));
+            declarations.add(new CSSDeclaration("-webkit-text-combine",
+                        new CSSExpression().addMember(new CSSExpressionMemberTermSimple("horizontal"))));
+            return declarations;
+        }
+
+        return declarations;
+    }
+    //#endregion
 
     //#region initialize setup
 

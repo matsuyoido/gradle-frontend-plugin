@@ -42,7 +42,7 @@ public class SassCompileTask extends DefaultTask {
             setting.getOutputDirectory()
                    .mkdirs();
             String exportExtension = setting.isEnableMinify() ? ".min.css" : "css";
-            new Compiler(exportExtension, "glob:[!_]*.scss", continueIfErrorExist){
+            new Compiler(exportExtension, "glob:[!_]*.scss", null, continueIfErrorExist){
                 @Override
                 protected String compile(Path filePath) {
                     String cssText = compiler.compile(filePath.toFile());

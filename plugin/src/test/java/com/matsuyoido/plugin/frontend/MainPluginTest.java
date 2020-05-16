@@ -470,4 +470,51 @@ public class MainPluginTest {
         assertThat(jsOutDir.list()).hasSize(1)
                                    .containsOnly("test.min.js");
     }
+
+
+    @Test
+    public void jsMinify_fileNameEndContainsMin() throws Exception {
+        File jsInDir = new File(getProjectDir(), "src/main/resources/static/js");
+        File jsOutDir = new File(getProjectDir(), "build/resources/static/js");
+
+        jsInDir.mkdirs();
+        jsOutDir.mkdirs();
+        File notCompileFile = new File(jsInDir, "compiled.min.js");
+        notCompileFile.createNewFile();
+        Files.write(jsInDir.toPath().resolve("childmin.js"), 
+        "function hoge() {}".getBytes(),
+        StandardOpenOption.CREATE_NEW);
+        Files.write(jsInDir.toPath().resolve("child.js"), 
+        "function hoge() {}".getBytes(),
+        StandardOpenOption.CREATE_NEW);
+        Files.write(jsInDir.toPath().resolve("childm.js"), 
+        "function hoge() {}".getBytes(),
+        StandardOpenOption.CREATE_NEW);
+        jsInDir.toPath().resolve("hoge").toFile().mkdirs();
+        Files.write(jsInDir.toPath().resolve("hoge/childmin.js"), 
+        "function hoge() {}".getBytes(),
+        StandardOpenOption.CREATE_NEW);
+        Files.write(jsInDir.toPath().resolve("hoge/childm.min.js"), 
+        "function hoge() {}".getBytes(),
+        StandardOpenOption.CREATE_NEW);
+
+        setup(
+            "frontend {",
+            "  script {",
+            "    js {",
+            "      inDir = file(\"$projectDir/src/main/resources/static/js\")",
+            "      outDir = file(\"$projectDir/build/resources/static/js\")",
+            "      type = \"yahoo\"",
+            "    }",
+            "  }",
+           "}"
+        );
+
+        BuildResult result = run("jsMinify");
+        assertThat(result.task(":jsMinify").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(jsOutDir.list()).hasSize(4)
+                                 .containsOnly("childmin.min.js", "child.min.js", "childm.min.js", "hoge");
+        assertThat(jsOutDir.toPath().resolve("hoge").toFile().list()).hasSize(1).containsOnly("childmin.min.js");
+    }
+
 }
