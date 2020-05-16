@@ -47,7 +47,7 @@ public class JsMergeTask extends DefaultTask {
         private JsMinifyCompiler compiler;
 
         public MergeCompile() {
-            super(".min.js", "glob:*.js.map", continueIfErrorExist);
+            super(".min.js", "glob:*.js.map", null, continueIfErrorExist);
             compiler = new JsMinifyCompiler(null);
             objectMapper = new ObjectMapper();
         }
